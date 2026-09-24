@@ -19,18 +19,28 @@
   :root{
     --navy:#002233; --blue:#00DBFF; --green:#00FFD4; --purple:#A44DFF;
     --ink:#002233; --ink-2:#0e3448; --ink-3:#4f6d7d; --line:#002233; --rule:#002233;
-    --paper:#ffffff;
+    --paper:#ffffff; --surface:#ffffff; --surface-rgb:255,255,255;
+    --hover:rgba(0,0,0,.03); --arc-dark:rgba(0,34,51,.55);
     --font:'TOTVS', 'Helvetica Neue', Arial, sans-serif;
     --header-h:90px;
     --pad:clamp(20px, 4.5vw, 86px);
     --sphere-d:85vh;
   }
+  /* Modo dark: fundo azul-escuro TOTVS, texto claro, azul-claro como linha/acento.
+     Menu e rodapé não mudam (já têm fundo próprio). */
+  :root[data-theme="dark"]{
+    --paper:#002233; --surface:#0b3247; --surface-rgb:11,50,71;
+    --ink:#eef8fb; --ink-2:#a9cddb; --ink-3:#4f8399; --line:#00DBFF; --rule:#00DBFF;
+    --hover:rgba(255,255,255,.06); --arc-dark:rgba(0,219,255,.45);
+  }
+  html{background:var(--paper)}
   *{box-sizing:border-box}
   html{scroll-behavior:auto;overscroll-behavior:none}
   body{
     margin:0; background:var(--paper); color:var(--ink);
     font-family:var(--font); font-weight:300; font-size:16px; line-height:1.45;
     -webkit-font-smoothing:antialiased; overflow-x:hidden; overscroll-behavior:none;
+    transition:background .45s ease,color .45s ease;
   }
   a{color:inherit;text-decoration:none}
   button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
@@ -42,7 +52,7 @@
     position:fixed;left:50%;top:var(--ring-y,42vh);z-index:7;pointer-events:none;
     width:var(--sphere-d);height:var(--sphere-d);margin:calc(var(--sphere-d)/-2) 0 0 calc(var(--sphere-d)/-2);
     border:1px solid var(--ink-3);border-radius:50%;opacity:0;transform:scale(1);
-    background:rgba(255,255,255,0);
+    background:rgba(var(--surface-rgb),var(--rbg,0));
   }
 
   /* ---------- header (dark on light sections, white on dark ones) ---------- */
@@ -56,6 +66,16 @@
   #header.lt-left .left{color:#fff}
   #header.lt-right .right{color:#fff}
   #header .right{display:flex;align-items:center;gap:26px}
+  #complink{font-size:13px;font-weight:400;letter-spacing:.01em;white-space:nowrap;
+    border:1px solid currentColor;border-radius:999px;padding:8px 18px;line-height:1;
+    transition:background .3s,color .3s,border-color .3s}
+  #complink:hover{background:var(--green);border-color:var(--green);color:var(--navy)}
+  #theme{width:22px;height:22px;display:block;position:relative}
+  #theme svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+  #theme .sun,#theme .moon{transition:opacity .35s,transform .5s cubic-bezier(.2,.8,.2,1);transform-origin:50% 50%}
+  #theme .sun{opacity:0;transform:rotate(-40deg) scale(.6)}
+  :root[data-theme="dark"] #theme .sun{opacity:1;transform:none}
+  :root[data-theme="dark"] #theme .moon{opacity:0;transform:rotate(40deg) scale(.6)}
   #sound{width:26px;height:22px;display:block;position:relative}
   #sound svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
   #sound .w1,#sound .w2{transition:opacity .3s}
@@ -107,6 +127,7 @@
   /* HERO: white paper; the VDS letters are a window (SVG mask) onto the WebGL layer */
   #vdsmask{position:absolute;inset:0;width:100%;height:100%;z-index:6;pointer-events:none;display:block}
   #vdsmask text{font-family:var(--font);font-weight:800;letter-spacing:-.045em}
+  #vdsw{fill:var(--paper)}
   #s0 .fg{display:flex;align-items:flex-end;justify-content:space-between;padding:0 40px 32px}
   .hero-caption{font-size:16px;font-weight:300;color:var(--ink)}
 
@@ -143,7 +164,7 @@
   .r3{left:calc(var(--pad) + 44vw);right:var(--pad);top:calc(65% + .5em);transform-origin:right center}
   .card{
     position:absolute;left:50%;top:50%;height:55vh;width:calc(55vh * .72);
-    background:#fff;box-shadow:0 40px 90px rgba(0,0,0,.18),0 6px 20px rgba(0,0,0,.08);
+    background:var(--surface);box-shadow:0 40px 90px rgba(0,0,0,.18),0 6px 20px rgba(0,0,0,.08);
     translate:-50% -50%;transform:rotate(-6deg);padding:3.2vh 3vh;
     display:flex;flex-direction:column;justify-content:space-between;
   }
@@ -168,7 +189,7 @@
   .stat .num{font-weight:300;font-size:clamp(56px,min(6.6vw,12vh),132px);line-height:1;font-variant-numeric:tabular-nums;padding-top:1.8vh}
   #s4 .arcs{position:absolute;inset:0;z-index:2;pointer-events:none;width:100%;height:100%}
   #s4 .arcs path{fill:none;stroke:rgba(255,255,255,.85);stroke-width:1}
-  #s4 .arcs.dark{clip-path:inset(0 0 0 62.5%)} #s4 .arcs.dark path{stroke:rgba(0,34,51,.55)}
+  #s4 .arcs.dark{clip-path:inset(0 0 0 62.5%)} #s4 .arcs.dark path{stroke:var(--arc-dark)}
   #s4 .arcs.light{clip-path:inset(0 37.5% 0 0)}
 
   /* S5 components */
@@ -177,19 +198,19 @@
   #s5 .right{position:absolute;left:62.5%;right:0;top:0;bottom:0;display:flex;flex-direction:column;padding-top:var(--header-h)} /* grid starts below the header so every circle is clickable */
   .grid{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--ink-3)}
   .comp-btn{display:block;aspect-ratio:1;border-radius:50%;border:1px solid var(--ink-2);position:relative;transition:transform .35s cubic-bezier(.2,.8,.2,1),background .35s;margin:-0.5px}
-  .comp-btn:hover{transform:scale(1.05);background:rgba(0,0,0,.03)}
+  .comp-btn:hover{transform:scale(1.05);background:var(--hover)}
   .comp-btn::before,.comp-btn::after{content:"";position:absolute;left:50%;top:50%;background:var(--ink-2);opacity:0;transition:opacity .3s}
   .comp-btn::before{width:52%;height:1px;transform:translate(-50%,-50%)}
   .comp-btn::after{height:52%;width:1px;transform:translate(-50%,-50%)}
   .comp-btn.is-active::before,.comp-btn.is-active::after{opacity:1}
-  .comp-btn.is-active{background:#fff}
+  .comp-btn.is-active{background:var(--surface)}
   .compinfo{padding:5vh 5vw 0}
   .chip{border:1px solid var(--ink-2);border-radius:999px;font-size:11px;padding:4px 10px;font-weight:400;display:inline-block}
   .compinfo h3{font-weight:200;font-size:clamp(26px,2.3vw,44px);margin:10px 0 3.6vh;line-height:1.05}
   .compinfo p{font-size:clamp(13px,.95vw,16px);color:var(--ink-2);max-width:52ch;margin:0}
 
   /* S6 closing: opaque white above the WebGL layer so the footer sphere is hidden behind it */
-  #s6 .bg{z-index:6;background:#fff}
+  #s6 .bg{z-index:6;background:var(--paper)}
   #s6 .fg{display:flex;align-items:flex-start;justify-content:center;padding:30vh var(--pad) 0}
   #s6 .vline{position:absolute;left:50%;top:calc(var(--header-h) - 6px);width:1px;height:8vh;background:var(--ink-3)}
   #s6 p{font-weight:300;font-size:clamp(18px,2.2vw,44px);line-height:1.28;text-align:justify;text-indent:4em;max-width:min(70ch,62vw);margin:0;color:var(--ink-2)}
@@ -236,11 +257,13 @@
     :root{--header-h:72px;--pad:20px}
     @supports (height:100dvh){ .sec{height:100dvh} }
     /* header: readable sizes, touch-friendly targets */
-    #header{padding-left:20px;padding-right:20px;background:#fff;transition:background .4s ease}
+    #header{padding-left:20px;padding-right:20px;background:var(--paper);transition:background .4s ease}
     #header.lt-left,#header.menu-on{background:transparent}
     #header .left{gap:22px;font-size:17px}
     #stepnav{gap:22px} #stepnav button{font-size:17px} #stepnav svg{width:14px;height:14px}
     #header .right{gap:22px}
+    #complink{display:none}
+    #theme{width:26px;height:26px} #theme svg{stroke-width:1.6}
     #sound{width:32px;height:28px} #sound svg{stroke-width:1.6}
     #burger{width:32px;height:24px} #burger::before,#burger::after{height:2px} #burger::before{top:7px} #burger::after{top:15px}
     #header.menu-on #burger::before,#header.menu-on #burger::after{top:11px}
@@ -276,7 +299,7 @@
     /* S5: gradient on top (component + text), white below with the 8 circles */
     #s5 .panel{position:absolute;left:0;top:0;right:0;bottom:auto;height:50%;background-position:0 -100vh}
     #s5 .caption{display:none}
-    #s5 .right{left:0;right:0;top:auto;bottom:0;height:50%;padding-top:0;display:flex;flex-direction:column;justify-content:flex-end;background:#fff}
+    #s5 .right{left:0;right:0;top:auto;bottom:0;height:50%;padding-top:0;display:flex;flex-direction:column;justify-content:flex-end;background:var(--paper)}
     .grid{grid-template-columns:repeat(4,1fr);border-bottom:0;padding:0 20px calc(3vh + env(safe-area-inset-bottom,0px));order:2}
     .comp-btn:nth-child(n+9){display:none}
     .compinfo{order:1;position:static;padding:4vh 20px 3vh;text-align:center;color:var(--ink);flex:1;display:flex;flex-direction:column;justify-content:center}
@@ -305,6 +328,8 @@
     #menu nav .lab{grid-column:1;font-size:13px} #menu nav .big{grid-column:1;font-size:clamp(26px,7.5vw,48px)}
   }
 </style>
+<!-- aplica o tema salvo antes do primeiro paint (evita piscar branco no modo dark) -->
+<script>try{if(localStorage.getItem('vds-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 
 <canvas id="gl" aria-hidden="true"></canvas>
 <div id="ring" aria-hidden="true"></div>
@@ -318,6 +343,14 @@
     </nav>
   </div>
   <div class="right">
+    <!-- LINK DA PÁGINA DE COMPONENTES: troque o valor de COMPONENTS_URL lá embaixo no script (vale pros 3 links) -->
+    <a id="complink" href="#componentes" data-complink>Componentes</a>
+    <button type="button" id="theme" aria-label="Ativar modo escuro" aria-pressed="false">
+      <svg viewBox="0 0 22 22" aria-hidden="true">
+        <g class="moon"><path d="M17.5 13.2A7 7 0 0 1 8.8 4.5a7 7 0 1 0 8.7 8.7z"/></g>
+        <g class="sun"><circle cx="11" cy="11" r="3.6"/><path d="M11 2v2.2M11 17.8V20M2 11h2.2M17.8 11H20M4.6 4.6l1.6 1.6M15.8 15.8l1.6 1.6M4.6 17.4l1.6-1.6M15.8 6.2l1.6-1.6"/></g>
+      </svg>
+    </button>
     <button type="button" id="sound" aria-label="Desligar som" aria-pressed="true">
       <svg viewBox="0 0 26 22" aria-hidden="true">
         <path d="M3 8.5h4l5-4.5v14l-5-4.5H3z"/>
@@ -363,7 +396,7 @@
   <section class="sec" id="s1" aria-label="O que é VDS">
     <div class="fg">
       <span class="eyebrow rise">O que é VDS</span>
-      <h2 class="rise">VIDA Design System é a base que conecta design e inovação em tudo o que criamos.</h2>
+      <h2 class="rise">VIDA Design System conecta design e código em um só padrão visual.</h2>
     </div>
   </section>
 
@@ -371,10 +404,9 @@
   <section class="sec" id="s2" aria-label="Linguagem visual">
     <div class="fg">
       <div class="disc"><div class="inner">
-        <h2 class="settle-in">Uma linguagem visual consistente pronta para evoluir</h2>
-        <p class="settle-in">O VIDA Design System integra design e tecnologia para unificar linguagem visual, acelerar entregas com consistência e orientar interfaces</p>
-        <!-- TROQUE O "#" PELO LINK REAL (hoje leva à seção de componentes) -->
-        <a class="pill settle-in" href="#" data-goto="5">Explorar Componentes</a>
+        <h2 class="settle-in">Um único padrão visual, usado de ponta a ponta</h2>
+        <p class="settle-in">O VIDA une design e tecnologia num sistema vivo de componentes, testado em produção e pronto pra escalar.</p>
+        <a class="pill settle-in" href="#componentes" data-complink>Explorar Componentes</a>
       </div></div>
     </div>
   </section>
@@ -390,8 +422,8 @@
       <span class="rule r2" aria-hidden="true"></span>
       <span class="rule r3" aria-hidden="true"></span>
       <div class="card">
-        <h3>Linguagem visual única, consistente e pronta para evoluir.</h3>
-        <p>Integra design e tecnologia para unificar decisões, acelerar entregas com consistência e orientar a construção das interfaces.</p>
+        <h3>Um padrão visual único, testado em produção.</h3>
+        <p>Componentes reais, usados em Web e Winthor, que aceleram a entrega e mantêm a consistência entre squads.</p>
       </div>
     </div>
   </section>
@@ -409,16 +441,17 @@
     </svg>
     <div class="fg">
       <h2 class="rise">A presença do VIDA</h2>
-      <p class="lead rise">Os números mostram como o sistema se expande, ganha escala e apoia a evolução das nossas interfaces. Eles revelam onde o VDS já está presente, como contribui para as entregas e o impacto real que gera no nosso ecossistema.</p>
+      <p class="lead rise">Números que mostram onde o VIDA já roda de verdade, do Web ao Winthor.</p>
       <div class="stats">
         <div class="stats-l">
-          <div class="stat rise"><div class="lab">Categoria 1</div><div class="num">00</div></div>
-          <div class="stat rise"><div class="lab">Categoria 2</div><div class="num">00</div></div>
-          <div class="stat rise"><div class="lab">Categoria 3</div><div class="num">00</div></div>
+          <div class="stat rise"><div class="lab">Apps Web</div><div class="num">08</div></div>
+          <div class="stat rise"><div class="lab">Winthor</div><div class="num">32</div></div>
+          <div class="stat rise"><div class="lab">Componentes</div><div class="num">1213</div></div>
         </div>
         <div class="stats-r">
-          <div class="stat rise"><div class="lab">Categoria 4</div><div class="num">00</div></div>
-          <div class="stat rise"><div class="lab">Categoria 5</div><div class="num">00</div></div>
+          <!-- VALORES PROVISÓRIOS: trocar pelos números reais -->
+          <div class="stat rise"><div class="lab">Telas em produção</div><div class="num">140</div></div>
+          <div class="stat rise"><div class="lab">Squads usando</div><div class="num">12</div></div>
         </div>
       </div>
     </div>
@@ -446,7 +479,7 @@
     <div class="fg">
       <span class="vline" aria-hidden="true"></span>
       <span class="dring" aria-hidden="true"></span>
-      <p class="rise">O VIDA nasce para dar sentido ao que construímos. Ele traduz decisões complexas em padrões claros, permitindo que equipes avancem na mesma direção. Ao reunir princípios, comportamentos e formas de pensar, o sistema cria soluções escaláveis prontas para evoluir.</p>
+      <p class="rise">O VIDA traduz decisões de design em padrões claros. Reúne componentes, princípios e comportamentos numa base única, usada em produção e pronta pra crescer junto com o produto.</p>
     </div>
   </section>
 
@@ -456,7 +489,7 @@
     <div class="fg">
       <h2 class="title"><span class="l1">Vida</span> Design System</h2>
       <div class="halves">
-        <a class="half" href="#" aria-label="Recursos">
+        <a class="half" href="#componentes" data-complink aria-label="Recursos">
           <div class="band">
             <h4>Recursos</h4>
             <p>Acesso rápido às bibliotecas, repositórios de código e ferramentas de desenvolvimento.</p>
@@ -616,6 +649,7 @@
   // [bottom, top, right-side accent]
   const COLS={
     hero:['#003a6b','#00DBFF','#7a4fd8'],
+    heroDark:['#0b63b3','#00DBFF','#8a5cf0'],
     mint:['#0069c2','#00FFD4','#00DBFF'],
     foot:['#003a6b','#00DBFF','#A44DFF']
   };
@@ -751,7 +785,7 @@
   /* ---- S2 balls: glossy 3D spheres with simple physics (gravity, collisions, cursor) ---- */
   const ballsG=new THREE.Group(); scene.add(ballsG);
   const ballGeo=new THREE.SphereGeometry(1,40,28);
-  const navy=new THREE.Color('#002233'), mid=new THREE.Color('#0077b6'), cyan=new THREE.Color('#00DBFF'), pale=new THREE.Color('#a6f4ff');
+  const navy=new THREE.Color('#002233'), navyD=new THREE.Color('#0d4f86'), mid=new THREE.Color('#0077b6'), cyan=new THREE.Color('#00DBFF'), pale=new THREE.Color('#a6f4ff');
   const balls=[]; const B={total:0,spawned:0,started:false,timer:0,g:0,done:false,magnet:false}; const IMPACTS=[];
   function planBalls(){ const avgR=mob()?Math.min(vh*.034,vw*.075):vh*.07; B.total=Math.min(Math.round(vw*vh*.74/(Math.PI*avgR*avgR)),mob()?110:400); B.g=vh*2.4; }
   function spawnBall(){
@@ -933,7 +967,7 @@
       su.uOp.value=solidOp; su.uT.value=t; su.uM.value.set(Math.sin(t*.3)*.25,Math.cos(t*.23)*.2);
     }
     // colors ease toward the section palette
-    const tc=COLS[colKey]; for(let i=0;i<3;i++){tgtCol[i].set(tc[i]); curCol[i].lerp(tgtCol[i],.04);} u.cA.value.copy(curCol[0]); u.cB.value.copy(curCol[1]); u.cC.value.copy(curCol[2]);
+    const tc=(colKey==='hero'&&isDark())?COLS.heroDark:COLS[colKey]; for(let i=0;i<3;i++){tgtCol[i].set(tc[i]); curCol[i].lerp(tgtCol[i],.04);} u.cA.value.copy(curCol[0]); u.cB.value.copy(curCol[1]); u.cC.value.copy(curCol[2]);
     // satellites: cursor pull (in R units) + idle orbit
     const mwx=S.px==null?1e9:(toWorldX(S.px)-cx)/Math.max(R,1e-4), mwy=S.py==null?1e9:(toWorldY(S.py)-cy)/Math.max(R,1e-4);
     const md=Math.hypot(mwx,mwy), near=md<2.4&&S.active&&S.mouseW>.5;
@@ -963,7 +997,7 @@
     else if(p<2.0){ rs=discD/ringD; rop=1; rbg=sstep(1.45,1.8,p); }
     else if(p<3.0){ rs=discD/ringD; rop=1-sstep(2.6,2.95,p); rbg=1; ry=(2-p)*vh; }
     ring.style.opacity=rop.toFixed(3); ring.style.transform=`translateY(${ry.toFixed(1)}px) scale(${rs.toFixed(4)})`;
-    ring.style.background=`rgba(255,255,255,${rbg.toFixed(3)})`;
+    ring.style.setProperty('--rbg',rbg.toFixed(3));
 
     // ---- balls (S2) ----
     const inS2=p>1.3&&p<3.0;
@@ -983,7 +1017,7 @@
         b.rz-=b.vx*dt/b.r; b.m.rotation.z=b.rz*.6; b.m.rotation.y=S.smx*.35; b.m.rotation.x=-S.smy*.25;
         const k=clamp(b.y/vh,0,1);
         const cu=b.m.material.uniforms; cu.uT.value=t; cu.uOp.value=1; cu.uM.value.set(S.smx*.4,-S.smy*.4);
-        cu.cA.value.copy(navy).lerp(mid,clamp(k*1.3,0,1)).lerp(cyan,clamp(k*1.25-.45,0,1));
+        cu.cA.value.copy(isDark()?navyD:navy).lerp(mid,clamp(k*1.3,0,1)).lerp(cyan,clamp(k*1.25-.45,0,1));
         cu.cB.value.copy(cu.cA.value).lerp(pale,.45);
         cu.cC.value.copy(cu.cA.value).lerp(mid,.3);
       }
@@ -1063,7 +1097,24 @@
   document.getElementById('prev').addEventListener('click',()=>goTo(idx-1));
   cue.addEventListener('click',()=>{ goTo(S.p>6.5?0:idx+1); });
   document.querySelectorAll('[data-goto]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();closeMenu();goTo(+a.dataset.goto);}));
-  document.querySelectorAll('.half').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
+  document.querySelectorAll('.half:not([data-complink])').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
+  /* ===== LINK DA PÁGINA DE COMPONENTES (provisório) =====
+     Vale pro botão "Componentes" do header, pro "Explorar Componentes" e pro "Recursos" do rodapé.
+     Quando a página estiver pronta, troque só esta linha (ex.: 'componentes.html' ou a URL completa). */
+  const COMPONENTS_URL='#componentes';
+  document.querySelectorAll('[data-complink]').forEach(a=>{ a.href=COMPONENTS_URL; if(COMPONENTS_URL==='#componentes') a.addEventListener('click',e=>e.preventDefault()); });
+
+  /* ===== tema light / dark ===== */
+  const themeBtn=document.getElementById('theme'), themeMeta=document.querySelector('meta[name="theme-color"]');
+  const isDark=()=>document.documentElement.dataset.theme==='dark';
+  function applyTheme(dark,save){
+    document.documentElement.dataset.theme=dark?'dark':'light';
+    themeBtn.setAttribute('aria-pressed',dark?'true':'false'); themeBtn.setAttribute('aria-label',dark?'Ativar modo claro':'Ativar modo escuro');
+    if(themeMeta) themeMeta.content=dark?'#002233':'#ffffff';
+    if(save){ try{ localStorage.setItem('vds-theme',dark?'dark':'light'); }catch(_){} }
+  }
+  themeBtn.addEventListener('click',()=>applyTheme(!isDark(),true));
+  applyTheme(isDark(),false); // sincroniza ícone/aria com o tema já aplicado no <html>
 
   // text rises (scrubbed with entry)
   document.querySelectorAll('.sec').forEach(sec=>{
