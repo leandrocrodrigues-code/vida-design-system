@@ -344,7 +344,7 @@
   </div>
   <div class="right">
     <!-- LINK DA PÁGINA DE COMPONENTES: troque o valor de COMPONENTS_URL lá embaixo no script (vale pros 3 links) -->
-    <a id="complink" href="#componentes" data-complink>Componentes</a>
+    <a id="complink" href="https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao" data-complink>Componentes</a>
     <button type="button" id="theme" aria-label="Ativar modo escuro" aria-pressed="false">
       <svg viewBox="0 0 22 22" aria-hidden="true">
         <g class="moon"><path d="M17.5 13.2A7 7 0 0 1 8.8 4.5a7 7 0 1 0 8.7 8.7z"/></g>
@@ -406,7 +406,7 @@
       <div class="disc"><div class="inner">
         <h2 class="settle-in">Um único padrão visual, usado de ponta a ponta</h2>
         <p class="settle-in">O VIDA une design e tecnologia num sistema vivo de componentes, testado em produção e pronto pra escalar.</p>
-        <a class="pill settle-in" href="#componentes" data-complink>Explorar Componentes</a>
+        <a class="pill settle-in" href="https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao" data-complink>Explorar Componentes</a>
       </div></div>
     </div>
   </section>
@@ -489,7 +489,7 @@
     <div class="fg">
       <h2 class="title"><span class="l1">Vida</span> Design System</h2>
       <div class="halves">
-        <a class="half" href="#componentes" data-complink aria-label="Recursos">
+        <a class="half" href="https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao" data-complink aria-label="Recursos">
           <div class="band">
             <h4>Recursos</h4>
             <p>Acesso rápido às bibliotecas, repositórios de código e ferramentas de desenvolvimento.</p>
@@ -1101,8 +1101,8 @@
   /* ===== LINK DA PÁGINA DE COMPONENTES (provisório) =====
      Vale pro botão "Componentes" do header, pro "Explorar Componentes" e pro "Recursos" do rodapé.
      Quando a página estiver pronta, troque só esta linha (ex.: 'componentes.html' ou a URL completa). */
-  const COMPONENTS_URL='#componentes';
-  document.querySelectorAll('[data-complink]').forEach(a=>{ a.href='https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao'; if(COMPONENTS_URL==='#componentes') a.addEventListener('click',e=>e.preventDefault()); });
+  const COMPONENTS_URL='https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao';
+  document.querySelectorAll('[data-complink]').forEach(a=>{ a.href=COMPONENTS_URL; if(COMPONENTS_URL==='https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducaos') a.addEventListener('click',e=>e.preventDefault()); });
 
   /* ===== tema light / dark ===== */
   const themeBtn=document.getElementById('theme'), themeMeta=document.querySelector('meta[name="theme-color"]');
