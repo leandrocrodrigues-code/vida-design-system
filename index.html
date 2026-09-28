@@ -1102,7 +1102,7 @@
      Vale pro botão "Componentes" do header, pro "Explorar Componentes" e pro "Recursos" do rodapé.
      Quando a página estiver pronta, troque só esta linha (ex.: 'componentes.html' ou a URL completa). */
   const COMPONENTS_URL='#componentes';
-  document.querySelectorAll('[data-complink]').forEach(a=>{ a.href=COMPONENTS_URL; if(COMPONENTS_URL==='#componentes') a.addEventListener('click',e=>e.preventDefault()); });
+  document.querySelectorAll('[data-complink]').forEach(a=>{ a.href='https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao'; if(COMPONENTS_URL==='#componentes') a.addEventListener('click',e=>e.preventDefault()); });
 
   /* ===== tema light / dark ===== */
   const themeBtn=document.getElementById('theme'), themeMeta=document.querySelector('meta[name="theme-color"]');
