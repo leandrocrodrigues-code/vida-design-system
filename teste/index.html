@@ -59,8 +59,8 @@
   /* S1: círculos outline que nascem do anel e se expandem para fora, como um pulso de áudio (tamanho/opacidade via JS) */
   /* camada do anel + anéis: em S1 é cortada abaixo do header (como no Figma); o corte some na transição para S2 */
   #ripples{position:fixed;inset:0;z-index:7;pointer-events:none;overflow:hidden;clip-path:inset(var(--clipT,0px) 0 0 0)}
-  .ripple{position:absolute;left:50%;top:var(--ring-y,42vh);width:0;height:0;
-    border:1px solid var(--ink-3);border-radius:50%;opacity:0;will-change:width,height,opacity}
+  #ripsvg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+  #ripsvg circle{fill:none;stroke:var(--ink-3);stroke-width:1;opacity:0}
 
   /* ---------- header (dark on light sections, white on dark ones) ---------- */
   #header{
@@ -151,7 +151,7 @@
   /* desktop: idêntico ao Figma (frame "2_Intro" 1920x890 abaixo do header), escalado por --s = min(largura/1920, (altura-header)/890) */
   @media (min-width:1025px){
     #s1 .fg{display:block;padding:0}
-    #s1 .stage{position:absolute;left:50%;top:calc(var(--header-h) + (100% - var(--header-h))/2);transform:translate(-50%,-50%);
+    #s1 .stage{position:absolute;left:0;right:0;margin:0 auto;top:calc(var(--header-h) + (100% - var(--header-h) - 890px*var(--s))/2);
       width:calc(1920px*var(--s));height:calc(890px*var(--s));padding-top:calc(160px*var(--s));gap:calc(32px*var(--s))}
     #s1 .eyebrow{font-size:calc(20px*var(--s));line-height:calc(23px*var(--s));letter-spacing:calc(.8px*var(--s));
       margin:calc(29.5px*var(--s)) 0;padding-bottom:calc(16px*var(--s));border-bottom-width:max(1px,calc(2px*var(--s)))}
@@ -359,7 +359,7 @@
 <script>try{if(localStorage.getItem('vds-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 
 <canvas id="gl" aria-hidden="true"></canvas>
-<div id="ripples" aria-hidden="true"><div id="ring"></div></div>
+<div id="ripples" aria-hidden="true"><div id="ring"></div><svg id="ripsvg"></svg></div>
 
 <header id="header">
   <div class="left">
@@ -947,10 +947,12 @@
   if(document.fonts&&document.fonts.load) document.fonts.load('800 100px TOTVS').then(fitWordmark);
 
   const ring=document.getElementById('ring');
-  // S1 ripples: anéis que nascem no círculo central e viajam até além dos cantos da tela, em fluxo contínuo
-  // gap = espaçamento entre anéis (Figma: ~114px num frame de 980px de altura); travel = segundos para andar um gap
-  const RIP={box:document.getElementById('ripples'),els:[],travel:1.5,on:false};
-  function ripEl(i){ while(RIP.els.length<=i){ const d=document.createElement('div'); d.className='ripple'; RIP.box.appendChild(d); RIP.els.push(d);} return RIP.els[i]; }
+  // S1 ripples: ao entrar na seção, os anéis saem do círculo central e se expandem UMA vez até as posições do Figma, e param.
+  // Desenhados num SVG (mudar o raio não recalcula o layout da página -> nada treme).
+  // Figma "2_Intro" (1920px): anéis com 1319, 1547, 1777, 2005, 2178, 2234 e 2292px de diâmetro
+  const RIP={svg:document.getElementById('ripsvg'),box:document.getElementById('ripples'),els:[],t0:null,dur:1.4,stagger:.07,last:'',
+    fig:[1319,1547,1777,2005,2178,2234,2292]};
+  function ripEl(i){ while(RIP.els.length<=i){ const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); RIP.svg.appendChild(c); RIP.els.push(c);} return RIP.els[i]; }
   const cue=document.getElementById('cue');
   const compBtnsEl=document.getElementById('compgrid');
 
@@ -1049,23 +1051,34 @@
     else if(p<3.0){ rs=discD/ringD; rop=1-sstep(2.6,2.95,p); rbg=1; ry=(2-p)*vh; }
     ring.style.opacity=rop.toFixed(3); ring.style.transform=`translateY(${ry.toFixed(1)}px) scale(${rs.toFixed(4)})`;
     ring.style.setProperty('--rbg',rbg.toFixed(3));
-    RIP.box.style.setProperty('--clipT',(mob()?0:header.offsetHeight*(1-sstep(1.05,1.4,p))).toFixed(1)+'px');
+    { const ct=(mob()?0:header.offsetHeight*(1-sstep(1.05,1.4,p))).toFixed(1)+'px'; if(ct!==RIP.ct){ RIP.ct=ct; RIP.box.style.setProperty('--clipT',ct); } }
 
-    // ---- S1: outline circles flowing out of the ring to the screen edges, like an audio pulse ----
+    // ---- S1: outline circles expand once from the ring to their Figma positions, then stop ----
+    {
     const rw=sstep(.8,1.0,p)*(1-sstep(1.15,1.45,p));
-    if(rw>.001||RIP.on){
-      RIP.on=rw>.001;
-      const r0=ringD*rs/2, cy=RY+ry;                                // raio do anel central / centro (px)
-      const rMax=Math.hypot(vw/2,Math.max(cy,vh-cy))+4;             // até o canto mais distante
-      const gap=mob()?Math.max(vh*.075,44):115*S1G.s;               // Figma: anéis a cada ~115px de raio
-      const off=reduced?gap*.5:((t/RIP.travel)%1)*gap;              // deslocamento contínuo para fora
-      let n=0;
-      for(let r=r0+off;r<rMax+gap;r+=gap,n++){
-        const el=ripEl(n), d=r*2, st=el.style;
-        const op=rw*sstep(r0,r0+gap*.6,r)*(1-sstep(rMax-gap*.5,rMax+gap*.5,r)); // nasce no anel, some fora da tela
-        st.width=st.height=d.toFixed(1)+'px'; st.marginLeft=(-r).toFixed(1)+'px'; st.marginTop=(ry-r).toFixed(1)+'px'; st.opacity=op.toFixed(3);
+    if(rw<=.001){ RIP.t0=null; }                                    // saiu da seção: na próxima entrada anima de novo
+    else if(RIP.t0==null){ RIP.t0=t; }
+    const r0=ringD*rs/2, cx=vw/2, cy=RY+ry;
+    let targets;
+    if(mob()){ const gap=Math.max(vh*.075,44), rMax=Math.hypot(vw/2,Math.max(cy,vh-cy)); targets=[]; for(let r=r0+gap;r<rMax+gap;r+=gap) targets.push(r); }
+    else targets=RIP.fig.map(d=>d/2*S1G.s);
+    const el0=RIP.t0==null?0:t-RIP.t0;
+    let key=rw.toFixed(3)+'|'+cy.toFixed(1)+'|'+r0.toFixed(1)+'|'+vw;
+    const parts=[];
+    for(let i=0;i<targets.length;i++){
+      const e=reduced?1:1-Math.pow(1-clamp((el0-i*RIP.stagger)/RIP.dur,0,1),3); // ease-out cúbico
+      parts.push(e.toFixed(3));
+    }
+    key+='|'+parts.join(',');
+    if(key!==RIP.last){                                             // só mexe no DOM quando algo muda (parado = zero escrita)
+      RIP.last=key;
+      for(let i=0;i<targets.length;i++){
+        const e=+parts[i], c=ripEl(i), r=r0+(targets[i]-r0)*e;
+        c.setAttribute('cx',cx.toFixed(1)); c.setAttribute('cy',cy.toFixed(1)); c.setAttribute('r',Math.max(r,0).toFixed(1));
+        c.style.opacity=(rw*clamp(e*5,0,1)).toFixed(3);
       }
-      for(let i=n;i<RIP.els.length;i++) RIP.els[i].style.opacity='0';
+      for(let i=targets.length;i<RIP.els.length;i++) RIP.els[i].style.opacity='0';
+    }
     }
 
     // ---- balls (S2) ----
