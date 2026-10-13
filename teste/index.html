@@ -1295,13 +1295,15 @@
      White page, letters are a window. The green disc rises inside the letters like a sunrise,
      then the sphere is born inside them. */
   gsap.set(['#brand','#burger','#cue','.hero-caption'],{opacity:0,y:16});
+  gsap.set('#logo',{opacity:0}); // só opacity: o transform do CSS centraliza a logo
   if(reduced){
-    S.intro=1; S.rise=1; gsap.set(['#brand','#burger','#cue','.hero-caption'],{opacity:1,y:0});
+    S.intro=1; S.rise=1; gsap.set(['#brand','#burger','#cue','.hero-caption'],{opacity:1,y:0}); gsap.set('#logo',{opacity:1});
   }else{
     const intro=gsap.timeline({delay:.25});
     intro.to(S,{rise:1,duration:1.7,ease:'power2.inOut'},0)                                // green sunrise fills the letters
          .to(S,{intro:1,duration:1.35,ease:'back.out(1.25)'},1.15)                          // sphere is born inside
          .to(['#brand','#burger'],{opacity:1,y:0,duration:.7,ease:'power2.out',stagger:.06},2.2)
+         .to('#logo',{opacity:1,duration:.7,ease:'power2.out'},2.2)                         // logo TOTVS faz fade junto com a marca e o menu
          .to('.hero-caption',{opacity:1,y:0,duration:.7,ease:'power2.out',stagger:.1},2.35)
          .to('#cue',{opacity:1,y:0,duration:.7,ease:'power2.out'},2.6);
   }
