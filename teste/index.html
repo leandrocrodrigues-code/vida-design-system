@@ -842,15 +842,17 @@
       col+=(hash(gl_FragCoord.xy)-.5)*.045;gl_FragColor=vec4(col,uOp);}`;
   const ballMat=new THREE.ShaderMaterial({vertexShader:FLAT_VERT,fragmentShader:FLAT_FRAG,transparent:true,uniforms:{uRes:{value:new THREE.Vector2(1,1)},uOp:{value:1}}});
   const balls=[]; const B={spawned:0}; const IMPACTS=[];
-  // lugares das bolinhas: grade colmeia centrada no disco, todas do mesmo tamanho e com espaço entre elas (print de referência)
+  // lugares das bolinhas: anéis concêntricos em volta do disco (print de referência), todas do mesmo tamanho e bem espaçadas;
+  // anéis alternados giram meio passo, como no Figma, para encaixar uma bolinha entre duas do anel de dentro
   function ballSlots(){
-    const D=mob()?Math.min(vw*.2,vh*.11):Math.min(vw*.104,vh*.2), r=D/2, dist=D*1.1, dy=dist*.866;
-    const cx=vw/2, cy=mob()?vh*.5:vh*.42, discR=(DISC.d||vh*.64)/2, out=[];
-    const rows=Math.ceil(vh/dy)+1, cols=Math.ceil(vw/dist)+1;
-    for(let jr=-rows;jr<=rows;jr++){ const y=cy+jr*dy; if(y<-r||y>vh+r) continue; const off=(jr&1)?dist/2:0;
-      for(let ic=-cols;ic<=cols;ic++){ const x=cx+ic*dist+off; if(x<-r||x>vw+r) continue;
-        if(Math.hypot(x-cx,y-cy)<discR+r*.3) continue;          // em volta do disco (podem passar um pouco por trás dele)
-        out.push({x,y,r}); } }
+    const D=mob()?Math.min(vw*.18,vh*.1):Math.min(vw*.096,vh*.185), r=D/2, gap=D*.26;
+    const cx=vw/2, cy=mob()?vh*.5:S1G.cy, discR=(DISC.d||vh*.64)/2, out=[];
+    const rMax=Math.hypot(Math.max(cx,vw-cx),Math.max(cy,vh-cy))+r;
+    for(let k=0, R=discR+r+gap*.55; R<rMax; k++, R+=(D+gap)*.9){
+      const n=Math.max(6,Math.floor(2*Math.PI*R/(D+gap))), a0=(k&1)?Math.PI/n:0;
+      for(let i=0;i<n;i++){ const a=a0+i*2*Math.PI/n, x=cx+Math.cos(a)*R, y=cy+Math.sin(a)*R;
+        if(x<-r||x>vw+r||y<-r||y>vh+r) continue; out.push({x,y,r}); }
+    }
     return out;
   }
   function planBalls(){ renderer.getDrawingBufferSize(ballMat.uniforms.uRes.value); if(balls.length){ resetBalls(); placeBalls(); } }
@@ -873,7 +875,9 @@
     const K=14, C=4.2, R=vh*.2, sub=2, h=dt/sub;
     for(let s=0;s<sub;s++) for(const b of balls){
       let ax=(b.tx-b.x)*K-b.vx*C, ay=(b.ty-b.y)*K-b.vy*C;
-      if(active){ const dx=b.x-mx, dy=b.y-my, d=Math.hypot(dx,dy)||1e-4; if(d<R){ const f=1-d/R; ax+=dx/d*f*f*vh*2.5*K/14; ay+=dy/d*f*f*vh*2.5*K/14; } }
+      if(active){ const dx=b.x-mx, dy=b.y-my, d=Math.hypot(dx,dy)||1e-4; if(d<R){ const f=1-d/R; ax+=dx/d*f*f*vh*2.5*K/14; ay+=dy/d*f*f*vh*2.5*K/14; }
+        const inside=d<b.r; if(inside&&!b.in&&s===0) IMPACTS.push({v:.75+Math.min(S.kick*3,.6),r:b.r/vh}); b.in=inside; } // barulhinho de bola de gude por bolinha
+      else b.in=false;
       b.vx+=ax*h; b.vy+=ay*h; b.x+=b.vx*h; b.y+=b.vy*h;
     }
   }
@@ -910,7 +914,7 @@
   const DISC={d:0};
   const discEl=document.querySelector('.disc'), discInner=document.querySelector('.disc .inner');
   function fitDisc(){
-    const base=mob()?Math.min(vh*.7,vw*1.25):Math.min(vh*.62,vw*.92), cap=mob()?Math.min(vh*.92,vw*1.6):Math.min(vh*.84,vw*.96);
+    const base=mob()?Math.min(vh*.7,vw*1.25):860*S1G.s, cap=mob()?Math.min(vh*.92,vw*1.6):Math.max(860*S1G.s,Math.min(vh*.84,vw*.96)); // desktop: "Core" de S2 no Figma = 860px
     discEl.style.setProperty('--dd',base+'px');
     // measure the content at its natural size, then size the circle to contain it (with breathing room)
     const w=discInner.getBoundingClientRect().width||1, h=discInner.scrollHeight||1;
@@ -920,10 +924,12 @@
   }
   const s1Fg=document.querySelector('#s1 .fg'), s1H2=document.querySelector('#s1 h2'), header=document.getElementById('header');
   const S1G={s:.75,cy:0,d:0}; // desktop: escala/centro/diâmetro do anel do Figma
-  function fitS1(){
+  function s1geo(){ // desktop: medidas do Figma (frames de 1920x890 abaixo do header fixo)
     const hh=header.getBoundingClientRect().height||90;
-    S1G.s=Math.min(vw/1920,(vh-hh)/890); S1G.cy=hh+(vh-hh)/2; S1G.d=1088*S1G.s; // "Core" do Figma: 1088px
+    S1G.s=Math.min(vw/1920,(vh-hh)/890); S1G.cy=hh+(vh-hh)/2; S1G.d=1088*S1G.s; // "Core" de S1: 1088px
     document.documentElement.style.setProperty('--s',S1G.s.toFixed(4));
+  }
+  function fitS1(){
     if(!mob()){ s1H2.style.fontSize=''; s1H2.style.maxWidth=''; return; }
     // the S1 text must sit inside the circle with room to breathe: shrink until its box fits the inscribed square (~86% of the diameter)
     const D=DISC.d||Math.min(vh*.62,vw*.92);
@@ -940,8 +946,8 @@
     vw=innerWidth;vh=innerHeight;renderer.setSize(vw,vh,false);camera.aspect=vw/vh;camera.updateProjectionMatrix();
     bgPlane.scale.set(worldW()*1.02*BGZ,worldH()*1.02*BGZ,1); bgMat.uniforms.uAsp.value=vw/vh;
     document.documentElement.style.setProperty('--sphere-d',(vh*.85)+'px');
-    document.documentElement.style.setProperty('--ring-y',mob()?'50vh':'42vh');
-    planBalls(); fitWordmark(); fitDisc(); fitS1(); if(menuReady) resizeMenuGL();
+    s1geo(); document.documentElement.style.setProperty('--ring-y',mob()?'50vh':S1G.cy.toFixed(1)+'px'); // desktop: centro da área abaixo do header
+    fitWordmark(); fitDisc(); fitS1(); planBalls(); if(menuReady) resizeMenuGL();
   }
   let menuReady=false;
   addEventListener('resize',()=>{resize(); scrollTo(0,idx*vh);}); resize();
@@ -952,7 +958,7 @@
   // S1 ripples: ao entrar na seção, os anéis saem do círculo central e se expandem UMA vez até as posições do Figma, e param.
   // Desenhados num SVG (mudar o raio não recalcula o layout da página -> nada treme).
   // Figma "2_Intro" (1920px): anéis com 1319, 1547, 1777, 2005, 2178, 2234 e 2292px de diâmetro
-  const SN={t0:null,boom:false,txt:false,pre:3.1};  // S1->S2: início da sequência / já explodiu / texto já entrou
+  const SN={t0:null,boom:false,txt:false,pre:2.4};  // S1->S2: início da sequência / já explodiu / texto já entrou
   const RIP={svg:document.getElementById('ripsvg'),box:document.getElementById('ripples'),els:[],t0:null,last:'',
     fig:[1319,1547,1777,2005,2178,2234,2292]};
   function ripEl(i){ while(RIP.els.length<=i){ const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); RIP.svg.appendChild(c); RIP.els.push(c);} return RIP.els[i]; }
@@ -975,7 +981,7 @@
 
     // ---- main sphere anchors (screen px) ----
     let ax,ay,ad,aop,mw=1,colKey='hero';
-    const RY=mob()?vh*.5:vh*.42; // the circle lives above the middle everywhere (centred on mobile)
+    const RY=mob()?vh*.5:S1G.cy; // centro do círculo: meio da área abaixo do header fixo (centrado no mobile)
     if(p<.95){ const k=sstep(0,.8,p); const d0=phone()?vw*1.1:Math.min(vh*1.15,vw*.62); const sy=heroBottom; // bottom of the letters
       ax=vw*.5; ay=lerp(sy-vh*.06-d0*.5,RY,k); ad=lerp(d0,mob()?Math.min(vh*.85,vw*1.1):vh*.85,k); aop=1-sstep(.55,.95,p); }
     else if(p<3.5){ ax=vw*.5; ay=RY; ad=mob()?Math.min(vh*.85,vw*1.1):vh*.85; aop=0; }
@@ -1047,18 +1053,18 @@
 
     // ---- ring: born from the hero sphere, becomes the S2 disc ----
     // ---- supernova (S1 -> S2), contada desde que a rolagem sai de S1 ----
-    // anéis voltam ao círculo (0–1,1 s) · o círculo diminui e ganha o degradê (0,7–2,2 s) · treme cada vez mais (1,9–3,1 s) · explode (3,1 s)
+    // anéis voltam ao círculo (0–0,9 s) · o círculo diminui e ganha o degradê (0,5–1,7 s) · treme cada vez mais (1,4–2,4 s) · explode (2,4 s)
     if(p<1.01){ if(SN.t0!=null||balls.length){ SN.t0=null; SN.boom=false; SN.txt=false; resetBalls(); } }
     else if(SN.t0==null&&p>1.03&&!reduced){ SN.t0=t; }
     const se=SN.t0==null?-1:t-SN.t0, sb=se-SN.pre;                 // se: desde a saída de S1; sb: desde a explosão
     let nova=0,novaS=1,glow=0,shrink=1,jx=0,jy=0;
     if(!reduced&&se>=0&&p<3){
       if(sb<0){
-        const kc2=sstep(.7,2.2,se), sh=sstep(1.9,SN.pre,se), a=sh*sh*7; // a: amplitude do tremor (px)
+        const kc2=sstep(.5,1.7,se), sh=sstep(1.4,SN.pre,se), a=sh*sh*7; // a: amplitude do tremor (px)
         nova=kc2; shrink=1-.42*kc2; glow=kc2*(.3+.7*sh);
         jx=a*(Math.sin(t*83)+.6*Math.sin(t*131))/1.6; jy=a*(Math.cos(t*97)+.6*Math.sin(t*59))/1.6;
         novaS=1+.04*sh*Math.sin(t*38);
-      } else { const k=clamp(sb/.55,0,1), eo=1-Math.pow(1-k,3); nova=1-k; novaS=1+2.4*eo; glow=1-k; shrink=lerp(.58,1,eo); }
+      } else { const k=clamp(sb/.45,0,1), eo=1-Math.pow(1-k,3); nova=1-k; novaS=1+2.4*eo; glow=1-k; shrink=lerp(.58,1,eo); }
     }
     const discIn=reduced?null:(se<0?0:(sb<0?0:sstep(.15,.6,sb)));  // disco branco entra depois da explosão
     let rop=0,rs=1,rbg=0,ry=0;
@@ -1077,8 +1083,8 @@
 
     // ---- S1: outline circles expand once from the ring to their Figma positions, then stop ----
     {
-    const rw=sstep(.8,1.0,p)*(1-(reduced?sstep(1.24,1.34,p):(se<0?0:sstep(.9,1.15,se))));
-    const kc=reduced?sstep(1.0,1.3,p):(se<0?0:sstep(0,1.1,se));    // saindo de S1: os anéis voltam para o círculo central
+    const rw=sstep(.8,1.0,p)*(1-(reduced?sstep(1.24,1.34,p):(se<0?0:sstep(.7,.92,se))));
+    const kc=reduced?sstep(1.0,1.3,p):(se<0?0:sstep(0,.9,se));    // saindo de S1: os anéis voltam para o círculo central
     if(rw<=.001){ RIP.t0=null; }                                    // saiu da seção: na próxima entrada anima de novo
     else if(RIP.t0==null){ RIP.t0=t; }
     const r0=ringD*rs/2, cx=vw/2, cy=RY+ry;
