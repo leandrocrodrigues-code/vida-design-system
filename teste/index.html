@@ -17,6 +17,7 @@
   @font-face{font-family:'TOTVS';font-weight:800;font-style:normal;src:url('../fonts/TOTVS-ExtraBold.ttf') format('truetype')}
   /* Paleta TOTVS: azul escuro + azul claro predominantes, verde de apoio, roxo como acento */
   :root{
+    --s:.75; /* escala do Figma (1920px) — atualizada pelo JS */
     --navy:#002233; --blue:#00DBFF; --green:#00FFD4; --purple:#A44DFF;
     --ink:#002233; --ink-2:#0e3448; --ink-3:#4f6d7d; --line:#002233; --rule:#002233;
     --paper:#ffffff; --surface:#ffffff; --surface-rgb:255,255,255;
@@ -49,15 +50,16 @@
   /* ---------- layers ---------- */
   #gl{position:fixed;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;display:block}
   #ring{
-    position:fixed;left:50%;top:var(--ring-y,42vh);z-index:7;pointer-events:none;
+    position:absolute;left:50%;top:var(--ring-y,42vh);z-index:7;pointer-events:none;
     width:var(--sphere-d);height:var(--sphere-d);margin:calc(var(--sphere-d)/-2) 0 0 calc(var(--sphere-d)/-2);
     border:1px solid var(--ink-3);border-radius:50%;opacity:0;transform:scale(1);
     background:rgba(var(--surface-rgb),var(--rbg,0));
   }
 
   /* S1: círculos outline que nascem do anel e se expandem para fora, como um pulso de áudio (tamanho/opacidade via JS) */
-  #ripples{position:fixed;left:0;right:0;top:var(--header-h);bottom:0;z-index:7;pointer-events:none;overflow:hidden} /* cortados abaixo do header, como no Figma */
-  .ripple{position:absolute;left:50%;top:calc(var(--ring-y,42vh) - var(--header-h));width:0;height:0;
+  /* camada do anel + anéis: em S1 é cortada abaixo do header (como no Figma); o corte some na transição para S2 */
+  #ripples{position:fixed;inset:0;z-index:7;pointer-events:none;overflow:hidden;clip-path:inset(var(--clipT,0px) 0 0 0)}
+  .ripple{position:absolute;left:50%;top:var(--ring-y,42vh);width:0;height:0;
     border:1px solid var(--ink-3);border-radius:50%;opacity:0;will-change:width,height,opacity}
 
   /* ---------- header (dark on light sections, white on dark ones) ---------- */
@@ -144,6 +146,19 @@
   #s1 .fg{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 var(--pad) 16vh} /* sits on the raised circle */
   .eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:400;padding-bottom:10px;border-bottom:1px solid var(--ink);display:inline-block}
   #s1 h2{font-weight:200;font-size:clamp(30px,3.8vw,72px);line-height:1.08;letter-spacing:-.01em;margin:5vh 0 0;max-width:22ch;text-wrap:balance}
+  #s1 .stage{display:flex;flex-direction:column;align-items:center}
+  #s1 .sub{font-weight:300;margin:0;color:var(--ink)}
+  /* desktop: idêntico ao Figma (frame "2_Intro" 1920x890 abaixo do header), escalado por --s = min(largura/1920, (altura-header)/890) */
+  @media (min-width:1025px){
+    #s1 .fg{display:block;padding:0}
+    #s1 .stage{position:absolute;left:50%;top:calc(var(--header-h) + (100% - var(--header-h))/2);transform:translate(-50%,-50%);
+      width:calc(1920px*var(--s));height:calc(890px*var(--s));padding-top:calc(160px*var(--s));gap:calc(32px*var(--s))}
+    #s1 .eyebrow{font-size:calc(20px*var(--s));line-height:calc(23px*var(--s));letter-spacing:calc(.8px*var(--s));
+      margin:calc(29.5px*var(--s)) 0;padding-bottom:calc(16px*var(--s));border-bottom-width:max(1px,calc(2px*var(--s)))}
+    #s1 h2{font-size:calc(64px*var(--s));line-height:calc(68px*var(--s));letter-spacing:0;margin:0;max-width:none;white-space:nowrap}
+    #s1 h2 .ln{display:block}
+    #s1 .sub{font-size:calc(20px*var(--s));line-height:calc(23px*var(--s));letter-spacing:calc(.4px*var(--s));width:calc(600px*var(--s))}
+  }
 
   /* S2: the ring (from the hero sphere) becomes the white disc; text lives inside it */
   #s2 .fg{display:flex;align-items:center;justify-content:center}
@@ -285,6 +300,7 @@
     /* S1 / S2: circle can be larger than the screen; text bigger */
     .eyebrow{font-size:14px}
     #s1 .fg{padding:0 20px 0}
+    #s1 .sub{font-size:clamp(15px,4vw,17px);line-height:1.35;max-width:34ch;margin-top:2.4vh}
     .disc{padding:0 18px}
     .disc h2{font-size:clamp(26px,7vw,44px);margin-bottom:2vh}
     .disc p{font-size:clamp(16px,4.2vw,20px);max-width:36ch;margin-bottom:2.6vh}
@@ -343,8 +359,7 @@
 <script>try{if(localStorage.getItem('vds-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 
 <canvas id="gl" aria-hidden="true"></canvas>
-<div id="ring" aria-hidden="true"></div>
-<div id="ripples" aria-hidden="true"></div>
+<div id="ripples" aria-hidden="true"><div id="ring"></div></div>
 
 <header id="header">
   <div class="left">
@@ -417,8 +432,12 @@
   <!-- 1 INTRO -->
   <section class="sec" id="s1" aria-label="O que é VDS">
     <div class="fg">
-      <span class="eyebrow rise">O que é VDS</span>
-      <h2 class="rise">VIDA Design System conecta design e código em um só padrão visual.</h2>
+      <div class="stage">
+        <span class="eyebrow rise">O que é VDS</span>
+        <h2 class="rise"><span class="ln">VIDA Design System</span> <span class="ln">é a base que conecta</span> <span class="ln">design e inovação em</span> <span class="ln">tudo o que criamos.</span></h2>
+        <!-- TEXTO PROVISÓRIO (lorem ipsum igual ao Figma): trocar pelo texto final -->
+        <p class="sub rise">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers.</p>
+      </div>
     </div>
   </section>
 
@@ -897,8 +916,13 @@
     if(d>cap){ d=cap; }
     DISC.d=d; discEl.style.setProperty('--dd',d+'px');
   }
-  const s1Fg=document.querySelector('#s1 .fg'), s1H2=document.querySelector('#s1 h2');
+  const s1Fg=document.querySelector('#s1 .fg'), s1H2=document.querySelector('#s1 h2'), header=document.getElementById('header');
+  const S1G={s:.75,cy:0,d:0}; // desktop: escala/centro/diâmetro do anel do Figma
   function fitS1(){
+    const hh=header.getBoundingClientRect().height||90;
+    S1G.s=Math.min(vw/1920,(vh-hh)/890); S1G.cy=hh+(vh-hh)/2; S1G.d=1088*S1G.s; // "Core" do Figma: 1088px
+    document.documentElement.style.setProperty('--s',S1G.s.toFixed(4));
+    if(!mob()){ s1H2.style.fontSize=''; s1H2.style.maxWidth=''; return; }
     // the S1 text must sit inside the circle with room to breathe: shrink until its box fits the inscribed square (~86% of the diameter)
     const D=DISC.d||Math.min(vh*.62,vw*.92);
     let f=mob()?Math.min(vw*.075,44):Math.min(vw*.038,72,D*.075);
@@ -927,7 +951,6 @@
   // gap = espaçamento entre anéis (Figma: ~114px num frame de 980px de altura); travel = segundos para andar um gap
   const RIP={box:document.getElementById('ripples'),els:[],travel:1.5,on:false};
   function ripEl(i){ while(RIP.els.length<=i){ const d=document.createElement('div'); d.className='ripple'; RIP.box.appendChild(d); RIP.els.push(d);} return RIP.els[i]; }
-  const header=document.getElementById('header');
   const cue=document.getElementById('cue');
   const compBtnsEl=document.getElementById('compgrid');
 
@@ -1020,25 +1043,27 @@
     // ---- ring: born from the hero sphere, becomes the S2 disc ----
     let rop=0,rs=1,rbg=0,ry=0;
     const discD=DISC.d, ringD=vh*.85; // (ring scale below is relative to --sphere-d = 85vh)
-    if(p<1.0){ rop=sstep(.55,.95,p); rs=lerp(mob()?Math.min(vh*.85,vw*1.1)/ringD:1,discD/ringD,sstep(.7,1.0,p)); }
-    else if(p<2.0){ rs=discD/ringD; rop=1; rbg=sstep(1.45,1.8,p); }
+    const s1D=mob()?discD:S1G.d, s1Y=mob()?0:S1G.cy-RY;   // S1 desktop: anel no tamanho/posição do Figma
+    if(p<1.0){ const k=sstep(.7,1.0,p); rop=sstep(.55,.95,p); rs=lerp(mob()?Math.min(vh*.85,vw*1.1)/ringD:1,s1D/ringD,k); ry=s1Y*k; }
+    else if(p<2.0){ const k=sstep(1.05,1.6,p); rs=lerp(s1D,discD,k)/ringD; ry=s1Y*(1-k); rop=1; rbg=sstep(1.45,1.8,p); }
     else if(p<3.0){ rs=discD/ringD; rop=1-sstep(2.6,2.95,p); rbg=1; ry=(2-p)*vh; }
     ring.style.opacity=rop.toFixed(3); ring.style.transform=`translateY(${ry.toFixed(1)}px) scale(${rs.toFixed(4)})`;
     ring.style.setProperty('--rbg',rbg.toFixed(3));
+    RIP.box.style.setProperty('--clipT',(mob()?0:header.offsetHeight*(1-sstep(1.05,1.4,p))).toFixed(1)+'px');
 
     // ---- S1: outline circles flowing out of the ring to the screen edges, like an audio pulse ----
     const rw=sstep(.8,1.0,p)*(1-sstep(1.15,1.45,p));
     if(rw>.001||RIP.on){
       RIP.on=rw>.001;
-      const r0=ringD*rs/2, cy=RY;                                   // raio do anel central / centro (px)
+      const r0=ringD*rs/2, cy=RY+ry;                                // raio do anel central / centro (px)
       const rMax=Math.hypot(vw/2,Math.max(cy,vh-cy))+4;             // até o canto mais distante
-      const gap=mob()?Math.max(vh*.075,44):vh*.116;
+      const gap=mob()?Math.max(vh*.075,44):115*S1G.s;               // Figma: anéis a cada ~115px de raio
       const off=reduced?gap*.5:((t/RIP.travel)%1)*gap;              // deslocamento contínuo para fora
       let n=0;
       for(let r=r0+off;r<rMax+gap;r+=gap,n++){
         const el=ripEl(n), d=r*2, st=el.style;
-        const op=rw*.6*sstep(r0,r0+gap*.6,r)*(1-sstep(rMax-gap*.5,rMax+gap*.5,r)); // nasce no anel, some fora da tela
-        st.width=st.height=d.toFixed(1)+'px'; st.marginLeft=st.marginTop=(-r).toFixed(1)+'px'; st.opacity=op.toFixed(3);
+        const op=rw*sstep(r0,r0+gap*.6,r)*(1-sstep(rMax-gap*.5,rMax+gap*.5,r)); // nasce no anel, some fora da tela
+        st.width=st.height=d.toFixed(1)+'px'; st.marginLeft=(-r).toFixed(1)+'px'; st.marginTop=(ry-r).toFixed(1)+'px'; st.opacity=op.toFixed(3);
       }
       for(let i=n;i<RIP.els.length;i++) RIP.els[i].style.opacity='0';
     }
