@@ -67,7 +67,7 @@
   #header.lt-right .right{color:#fff}
   #header .right{display:flex;align-items:center;gap:26px}
   /* logo TOTVS centralizada no topo (SVG com currentColor: acompanha o tema e vira branca sobre fundos escuros) */
-  #logo{position:absolute;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0px);height:calc(var(--header-h) - env(safe-area-inset-top,0px));display:block;color:var(--ink);transition:color .4s ease}
+  #logo{position:absolute;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0px);height:calc(var(--header-h) - env(safe-area-inset-top,0px));display:block;color:var(--ink);opacity:0;transition:color .4s ease}
   #logo svg{display:block;height:100%;width:auto}
   #header.lt-left #logo,#header.menu-on #logo{color:#fff}
   #complink{font-size:13px;font-weight:400;letter-spacing:.01em;white-space:nowrap;
@@ -543,6 +543,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<script>if(!window.gsap){var l=document.getElementById('logo');if(l)l.style.opacity=1} /* sem GSAP (CDN fora do ar): mostra a logo sem animação */</script>
 <script>
 (function(){
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -1295,7 +1296,6 @@
      White page, letters are a window. The green disc rises inside the letters like a sunrise,
      then the sphere is born inside them. */
   gsap.set(['#brand','#burger','#cue','.hero-caption'],{opacity:0,y:16});
-  gsap.set('#logo',{opacity:0}); // só opacity: o transform do CSS centraliza a logo
   if(reduced){
     S.intro=1; S.rise=1; gsap.set(['#brand','#burger','#cue','.hero-caption'],{opacity:1,y:0}); gsap.set('#logo',{opacity:1});
   }else{
@@ -1303,7 +1303,7 @@
     intro.to(S,{rise:1,duration:1.7,ease:'power2.inOut'},0)                                // green sunrise fills the letters
          .to(S,{intro:1,duration:1.35,ease:'back.out(1.25)'},1.15)                          // sphere is born inside
          .to(['#brand','#burger'],{opacity:1,y:0,duration:.7,ease:'power2.out',stagger:.06},2.2)
-         .to('#logo',{opacity:1,duration:.7,ease:'power2.out'},2.2)                         // logo TOTVS faz fade junto com a marca e o menu
+         .to('#logo',{opacity:1,duration:.9,ease:'power2.out'},2.45)                        // logo TOTVS: fade depois que o hero já está montado (só opacity: o transform do CSS centraliza)
          .to('.hero-caption',{opacity:1,y:0,duration:.7,ease:'power2.out',stagger:.1},2.35)
          .to('#cue',{opacity:1,y:0,duration:.7,ease:'power2.out'},2.6);
   }
