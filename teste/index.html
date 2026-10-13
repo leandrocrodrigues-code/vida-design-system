@@ -344,7 +344,7 @@
 
 <canvas id="gl" aria-hidden="true"></canvas>
 <div id="ring" aria-hidden="true"></div>
-<div id="ripples" aria-hidden="true"><div class="ripple"></div><div class="ripple"></div><div class="ripple"></div><div class="ripple"></div></div>
+<div id="ripples" aria-hidden="true"></div>
 
 <header id="header">
   <div class="left">
@@ -923,8 +923,10 @@
   if(document.fonts&&document.fonts.load) document.fonts.load('800 100px TOTVS').then(fitWordmark);
 
   const ring=document.getElementById('ring');
-  // S1 ripples: 4 círculos saem do anel e crescem até ~1.84x, defasados, num ciclo contínuo
-  const RIP={els:[...document.querySelectorAll('.ripple')],period:4.8,spread:.84,on:false};
+  // S1 ripples: anéis que nascem no círculo central e viajam até além dos cantos da tela, em fluxo contínuo
+  // gap = espaçamento entre anéis (Figma: ~114px num frame de 980px de altura); travel = segundos para andar um gap
+  const RIP={box:document.getElementById('ripples'),els:[],travel:1.5,on:false};
+  function ripEl(i){ while(RIP.els.length<=i){ const d=document.createElement('div'); d.className='ripple'; RIP.box.appendChild(d); RIP.els.push(d);} return RIP.els[i]; }
   const header=document.getElementById('header');
   const cue=document.getElementById('cue');
   const compBtnsEl=document.getElementById('compgrid');
@@ -1024,17 +1026,21 @@
     ring.style.opacity=rop.toFixed(3); ring.style.transform=`translateY(${ry.toFixed(1)}px) scale(${rs.toFixed(4)})`;
     ring.style.setProperty('--rbg',rbg.toFixed(3));
 
-    // ---- S1: outline circles expanding from the ring, like an audio pulse ----
+    // ---- S1: outline circles flowing out of the ring to the screen edges, like an audio pulse ----
     const rw=sstep(.8,1.0,p)*(1-sstep(1.15,1.45,p));
     if(rw>.001||RIP.on){
-      RIP.on=rw>.001; const n=RIP.els.length;
-      for(let i=0;i<n;i++){
-        // k: 0 = nasce no anel, 1 = expansão máxima. Movimento reduzido: círculos parados, igualmente espaçados
-        const k=reduced?(i+1)/n:((t/RIP.period)+i/n)%1;
-        const d=ringD*rs*(1+k*RIP.spread);
-        const op=rw*.6*(reduced?1:sstep(0,.12,k)*(1-sstep(.62,1,k))); // .6: mesmo cinza claro do anel principal
-        const st=RIP.els[i].style; st.width=st.height=d.toFixed(1)+'px'; st.marginLeft=st.marginTop=(-d/2).toFixed(1)+'px'; st.opacity=op.toFixed(3);
+      RIP.on=rw>.001;
+      const r0=ringD*rs/2, cy=RY;                                   // raio do anel central / centro (px)
+      const rMax=Math.hypot(vw/2,Math.max(cy,vh-cy))+4;             // até o canto mais distante
+      const gap=mob()?Math.max(vh*.075,44):vh*.116;
+      const off=reduced?gap*.5:((t/RIP.travel)%1)*gap;              // deslocamento contínuo para fora
+      let n=0;
+      for(let r=r0+off;r<rMax+gap;r+=gap,n++){
+        const el=ripEl(n), d=r*2, st=el.style;
+        const op=rw*.6*sstep(r0,r0+gap*.6,r)*(1-sstep(rMax-gap*.5,rMax+gap*.5,r)); // nasce no anel, some fora da tela
+        st.width=st.height=d.toFixed(1)+'px'; st.marginLeft=st.marginTop=(-r).toFixed(1)+'px'; st.opacity=op.toFixed(3);
       }
+      for(let i=n;i<RIP.els.length;i++) RIP.els[i].style.opacity='0';
     }
 
     // ---- balls (S2) ----
