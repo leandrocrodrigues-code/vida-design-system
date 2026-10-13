@@ -845,10 +845,10 @@
   // lugares das bolinhas: anéis concêntricos em volta do disco (print de referência), todas do mesmo tamanho e bem espaçadas;
   // anéis alternados giram meio passo, como no Figma, para encaixar uma bolinha entre duas do anel de dentro
   function ballSlots(){
-    const D=mob()?Math.min(vw*.18,vh*.1):Math.min(vw*.096,vh*.185), r=D/2, gap=D*.26;
+    const D=mob()?Math.min(vw*.18,vh*.1):Math.min(vw*.096,vh*.185), r=D/2, gap=D*.08;  // espaço entre bolinhas: 8% do diâmetro
     const cx=vw/2, cy=mob()?vh*.5:S1G.cy, discR=(DISC.d||vh*.64)/2, out=[];
     const rMax=Math.hypot(Math.max(cx,vw-cx),Math.max(cy,vh-cy))+r;
-    for(let k=0, R=discR+r+gap*.55; R<rMax; k++, R+=(D+gap)*.9){
+    for(let k=0, R=discR+r+gap*.5; R<rMax; k++, R+=(D+gap)*.87){
       const n=Math.max(6,Math.floor(2*Math.PI*R/(D+gap))), a0=(k&1)?Math.PI/n:0;
       for(let i=0;i<n;i++){ const a=a0+i*2*Math.PI/n, x=cx+Math.cos(a)*R, y=cy+Math.sin(a)*R;
         if(x<-r||x>vw+r||y<-r||y>vh+r) continue; out.push({x,y,r}); }
