@@ -55,6 +55,11 @@
     border:1px solid var(--ink-3);border-radius:50%;opacity:0;transform:scale(1);
     background:rgba(var(--surface-rgb),var(--rbg,0));
   }
+  /* supernova: o círculo ganha o degradê azul do site, brilha, cresce e explode (opacidade/escala/brilho via JS) */
+  #ring::before{content:"";position:absolute;inset:-1px;border-radius:50%;
+    background:linear-gradient(135deg,#00DBFF 0%,#009edb 45%,#003d66 100%);
+    opacity:var(--nova,0);transform:scale(var(--novaS,1));
+    box-shadow:0 0 calc(var(--glow,0)*140px) calc(var(--glow,0)*30px) rgba(0,219,255,.45)}
 
   /* S1: círculos outline que nascem do anel e se expandem para fora, como um pulso de áudio (tamanho/opacidade via JS) */
   /* camada do anel + anéis: em S1 é cortada abaixo do header (como no Figma); o corte some na transição para S2 */
@@ -824,24 +829,37 @@
   const SOLID={ s4:['#0069c2','#00FFD4','#00DBFF'], foot:['#003a6b','#00DBFF','#A44DFF'] };
   const solidCur=[new THREE.Color(SOLID.s4[0]),new THREE.Color(SOLID.s4[1]),new THREE.Color(SOLID.s4[2])], solidTgt=new THREE.Color();
 
-  /* ---- S2 balls: glossy 3D spheres with simple physics (gravity, collisions, cursor) ---- */
+  /* ---- S2 balls: flat 2D discs with a blue gradient (no lighting) + simple physics (gravity, collisions, cursor) ---- */
   const ballsG=new THREE.Group(); scene.add(ballsG);
-  const ballGeo=new THREE.SphereGeometry(1,40,28);
+  const ballGeo=new THREE.CircleGeometry(1,64);
+  const FLAT_VERT=`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
+  const FLAT_FRAG=`precision highp float;uniform vec3 cA,cB;uniform float uOp;varying vec2 vUv;
+    void main(){float g=clamp(vUv.y*.75+(1.-vUv.x)*.25,0.,1.);gl_FragColor=vec4(mix(cA,cB,g),uOp);}`; // degradê diagonal, claro em cima à esquerda
+  const flatMat=()=>new THREE.ShaderMaterial({vertexShader:FLAT_VERT,fragmentShader:FLAT_FRAG,transparent:true,
+    uniforms:{cA:{value:new THREE.Color()},cB:{value:new THREE.Color()},uOp:{value:1}}});
   const navy=new THREE.Color('#002233'), navyD=new THREE.Color('#0d4f86'), mid=new THREE.Color('#0077b6'), cyan=new THREE.Color('#00DBFF'), pale=new THREE.Color('#a6f4ff');
   const balls=[]; const B={total:0,spawned:0,started:false,timer:0,g:0,done:false,magnet:false}; const IMPACTS=[];
   function planBalls(){ const avgR=mob()?Math.min(vh*.034,vw*.075):vh*.07; B.total=Math.min(Math.round(vw*vh*.74/(Math.PI*avgR*avgR)),mob()?110:400); B.g=vh*2.4; }
-  function spawnBall(){
+  function spawnBall(x,y,vx,vy,gh){
     const r=mob()?Math.min(vh*.034,vw*.075)*(.75+Math.random()*.5):vh*(.052+Math.random()*.036);
-    const m=new THREE.Mesh(ballGeo,gradMat('#0b1f4b','#2547a8','#3fd4df',Math.random()*7,.35,.9));
+    const m=new THREE.Mesh(ballGeo,flatMat());
     ballsG.add(m);
-    balls.push({m,r,x:r+Math.random()*(vw-2*r),y:-r-Math.random()*vh*.35,vx:(Math.random()-.5)*vh*.2,vy:0,rz:0});
+    balls.push({m,r,x:x??r+Math.random()*(vw-2*r),y:y??-r-Math.random()*vh*.35,vx:vx??(Math.random()-.5)*vh*.2,vy:vy??0,rz:0,gh:gh||0});
     B.spawned++;
+  }
+  // supernova: todas as bolinhas nascem dentro do círculo e saem voando para fora; por um instante atravessam umas às outras (gh) e depois colidem e caem
+  function burstBalls(cx,cy,R){
+    while(B.spawned<B.total){
+      const a=Math.random()*Math.PI*2, d=R*Math.sqrt(Math.random())*.85, sp=vh*(1.1+Math.random()*1.9);
+      spawnBall(cx+Math.cos(a)*d,cy+Math.sin(a)*d,Math.cos(a)*sp,Math.sin(a)*sp-vh*.5,.32+Math.random()*.2);
+    }
   }
   function resetBalls(){ balls.forEach(b=>{ballsG.remove(b.m);b.m.material.dispose();}); balls.length=0; B.spawned=0; B.started=false; B.timer=0; B.magnet=false; }
   function stepBalls(dt,mx,my,active){
     const sub=3, h=dt/sub, floor=vh, R=vh*.2, mr=vh*.05, slop=.6, sleepV=vh*.03;
     for(let s=0;s<sub;s++){
       for(const b of balls){
+        if(b.gh>0) b.gh-=h;
         if(B.magnet){ // after the cursor touches them, gravity turns into a magnet at the centre (behind the disc)
           const dx=vw*.5-b.x, dy=vh*.42-b.y, d=Math.hypot(dx,dy)||1; const g=B.g*.55;
           b.vx+=dx/d*g*h; b.vy+=dy/d*g*h; b.vx*=.985; b.vy*=.985;
@@ -860,7 +878,7 @@
         const vmax=vh*2.2; const sp=Math.hypot(b.vx,b.vy); if(sp>vmax){b.vx*=vmax/sp;b.vy*=vmax/sp;}
       }
       for(let i=0;i<balls.length;i++){ const a=balls[i];
-        for(let j=i+1;j<balls.length;j++){ const c=balls[j];
+        for(let j=i+1;j<balls.length;j++){ const c=balls[j]; if(a.gh>0||c.gh>0) continue;
           const dx=c.x-a.x, dy=c.y-a.y, rr=a.r+c.r; const d2=dx*dx+dy*dy; if(d2>=rr*rr||d2<1e-6) continue;
           const d=Math.sqrt(d2), nx=dx/d, ny=dy/d, ov=Math.max(rr-d-slop,0)*.7; // soft correction: no jitter in packed piles
           const ma=a.r*a.r, mc=c.r*c.r, tot=ma+mc;
@@ -950,6 +968,7 @@
   // S1 ripples: ao entrar na seção, os anéis saem do círculo central e se expandem UMA vez até as posições do Figma, e param.
   // Desenhados num SVG (mudar o raio não recalcula o layout da página -> nada treme).
   // Figma "2_Intro" (1920px): anéis com 1319, 1547, 1777, 2005, 2178, 2234 e 2292px de diâmetro
+  const SN={t0:null,boom:false,pre:.45};  // S1->S2: tempo desde a chegada em S2 / já explodiu?
   const RIP={svg:document.getElementById('ripsvg'),box:document.getElementById('ripples'),els:[],t0:null,last:'',
     fig:[1319,1547,1777,2005,2178,2234,2292]};
   function ripEl(i){ while(RIP.els.length<=i){ const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); RIP.svg.appendChild(c); RIP.els.push(c);} return RIP.els[i]; }
@@ -1043,19 +1062,33 @@
     if(p<4.85||p>5.7){ if(blobProxy.scale.x!==1) blobProxy.scale.setScalar(1); blobProxy.visible=true; } // outside S5 the sphere is always whole
 
     // ---- ring: born from the hero sphere, becomes the S2 disc ----
+    // ---- supernova (S1 -> S2): ao chegar em S2 o círculo carregado de degradê pulsa e explode ----
+    if(p<1.25){ if(SN.t0!=null||balls.length){ SN.t0=null; SN.boom=false; resetBalls(); } }
+    else if(SN.t0==null&&p>1.9&&!reduced){ SN.t0=t; }
+    const se=SN.t0==null?-1:t-SN.t0, sb=se-SN.pre;                 // se: desde a chegada; sb: desde a explosão
+    let nova=0,novaS=1,glow=0;
+    if(!reduced&&p>1.2&&p<3){
+      const charge=sstep(1.3,1.9,p);                               // ganha cor enquanto chega
+      if(sb<0){ const k=se<0?0:sstep(0,SN.pre,se); nova=charge; novaS=1+.07*k; glow=charge*(.35+.65*k); }
+      else{ const k=clamp(sb/.5,0,1), eo=1-Math.pow(1-k,3); nova=1-k; novaS=1.07+.95*eo; glow=1-k; }
+    }
+    const discIn=reduced?null:(se<0?0:sstep(.1,.5,sb));           // disco branco + texto entram depois da explosão
     let rop=0,rs=1,rbg=0,ry=0;
     const discD=DISC.d, ringD=vh*.85; // (ring scale below is relative to --sphere-d = 85vh)
     const s1D=mob()?discD:S1G.d, s1Y=mob()?0:S1G.cy-RY;   // S1 desktop: anel no tamanho/posição do Figma
     if(p<1.0){ const k=sstep(.7,1.0,p); rop=sstep(.55,.95,p); rs=lerp(mob()?Math.min(vh*.85,vw*1.1)/ringD:1,s1D/ringD,k); ry=s1Y*k; }
-    else if(p<2.0){ const k=sstep(1.05,1.6,p); rs=lerp(s1D,discD,k)/ringD; ry=s1Y*(1-k); rop=1; rbg=sstep(1.45,1.8,p); }
-    else if(p<3.0){ rs=discD/ringD; rop=1-sstep(2.6,2.95,p); rbg=1; ry=(2-p)*vh; }
+    else if(p<2.0){ const k=sstep(1.05,1.6,p); rs=lerp(s1D,discD,k)/ringD; ry=s1Y*(1-k); rop=1; rbg=discIn==null?sstep(1.45,1.8,p):discIn; }
+    else if(p<3.0){ rs=discD/ringD; rop=1-sstep(2.6,2.95,p); rbg=discIn==null?1:(SN.t0==null?1:discIn); ry=(2-p)*vh; }
     ring.style.opacity=rop.toFixed(3); ring.style.transform=`translateY(${ry.toFixed(1)}px) scale(${rs.toFixed(4)})`;
     ring.style.setProperty('--rbg',rbg.toFixed(3));
+    ring.style.setProperty('--nova',nova.toFixed(3)); ring.style.setProperty('--novaS',novaS.toFixed(4)); ring.style.setProperty('--glow',glow.toFixed(3));
+    if(sb>=0&&!SN.boom){ SN.boom=true; burstBalls(vw/2,RY,discD/2*1.07); boom(); }
     { const ct=(mob()?0:header.offsetHeight*(1-sstep(1.05,1.4,p))).toFixed(1)+'px'; if(ct!==RIP.ct){ RIP.ct=ct; RIP.box.style.setProperty('--clipT',ct); } }
 
     // ---- S1: outline circles expand once from the ring to their Figma positions, then stop ----
     {
-    const rw=sstep(.8,1.0,p)*(1-sstep(1.15,1.45,p));
+    const rw=sstep(.8,1.0,p)*(1-sstep(1.24,1.34,p));
+    const kc=sstep(1.0,1.3,p);                                     // rolando para S2: os anéis recolhem para o círculo central
     if(rw<=.001){ RIP.t0=null; }                                    // saiu da seção: na próxima entrada anima de novo
     else if(RIP.t0==null){ RIP.t0=t; }
     const r0=ringD*rs/2, cx=vw/2, cy=RY+ry;
@@ -1063,7 +1096,7 @@
     if(mob()){ const gap=Math.max(vh*.075,44), rMax=Math.hypot(vw/2,Math.max(cy,vh-cy)); targets=[]; for(let r=r0+gap;r<rMax+gap;r+=gap) targets.push(r); }
     else targets=RIP.fig.map(d=>d/2*S1G.s);
     const el0=RIP.t0==null?0:t-RIP.t0;
-    let key=rw.toFixed(3)+'|'+cy.toFixed(1)+'|'+r0.toFixed(1)+'|'+vw;
+    let key=rw.toFixed(3)+'|'+kc.toFixed(3)+'|'+cy.toFixed(1)+'|'+r0.toFixed(1)+'|'+vw;
     const parts=[];
     // gota na água: a onda que vai mais longe sai primeiro, as outras vêm em sequência;
     // cada uma leva mais tempo quanto mais longe vai (velocidade quase constante, desacelerando no fim)
@@ -1077,7 +1110,7 @@
     if(key!==RIP.last){                                             // só mexe no DOM quando algo muda (parado = zero escrita)
       RIP.last=key;
       for(let i=0;i<targets.length;i++){
-        const e=+parts[i], c=ripEl(i), r=r0+(targets[i]-r0)*e;
+        const e=+parts[i], c=ripEl(i), r=r0+(targets[i]-r0)*e*(1-kc);
         c.setAttribute('cx',cx.toFixed(1)); c.setAttribute('cy',cy.toFixed(1)); c.setAttribute('r',Math.max(r,0).toFixed(1));
         c.style.opacity=(rw*sstep(0,.55,e)).toFixed(3);             // nasce invisível sobre o anel e ganha opacidade ao se afastar (sem empilhar linhas)
       }
@@ -1087,11 +1120,9 @@
 
     // ---- balls (S2) ----
     const inS2=p>1.3&&p<3.0;
-    if(p>1.5&&!B.started&&!reduced){ B.started=true; B.timer=0; }
     if(reduced&&p>1.3&&!B.started){ B.started=true; while(B.spawned<B.total){spawnBall(); const b=balls[balls.length-1]; b.y=vh-b.r-Math.random()*vh*.8;} }
     ballsG.visible=inS2&&balls.length>0;
     if(inS2){
-      if(B.started&&B.spawned<B.total){ B.timer+=dt; while(B.timer>.028&&B.spawned<B.total){B.timer-=.028; spawnBall();} }
       const gy=(2-p)*vh;
       const mxp=S.px==null?-1e5:S.px, myp=S.py==null?-1e5:S.py-gy;
       stepBalls(dt,mxp,myp,S.active&&S.px!=null);
@@ -1100,12 +1131,11 @@
       for(const b of balls){
         b.m.position.set(toWorldX(b.x),toWorldY(b.y+gy),0);
         b.m.scale.setScalar(Math.max(px(b.r)*fade,1e-4));
-        b.rz-=b.vx*dt/b.r; b.m.rotation.z=b.rz*.6; b.m.rotation.y=S.smx*.35; b.m.rotation.x=-S.smy*.25;
+        b.rz-=b.vx*dt/b.r; b.m.rotation.z=b.rz*.6;
         const k=clamp(b.y/vh,0,1);
-        const cu=b.m.material.uniforms; cu.uT.value=t; cu.uOp.value=1; cu.uM.value.set(S.smx*.4,-S.smy*.4);
+        const cu=b.m.material.uniforms;
         cu.cA.value.copy(isDark()?navyD:navy).lerp(mid,clamp(k*1.3,0,1)).lerp(cyan,clamp(k*1.25-.45,0,1));
         cu.cB.value.copy(cu.cA.value).lerp(pale,.45);
-        cu.cC.value.copy(cu.cA.value).lerp(mid,.3);
       }
     }
 
@@ -1154,7 +1184,7 @@
   const menu=document.getElementById('menu');
   const menuOpen=()=>menu.classList.contains('open');
   function settle(i){
-    if(i===2) gsap.to('.disc .settle-in',{opacity:1,y:0,duration:.8,stagger:.1,ease:'power2.out',overwrite:true});
+    if(i===2) gsap.to('.disc .settle-in',{opacity:1,y:0,duration:.8,stagger:.1,ease:'power2.out',overwrite:true,delay:reduced||SN.boom?0:.7}); // espera a supernova
     else gsap.to('.disc .settle-in',{opacity:0,y:24,duration:.3,overwrite:true});
   }
   gsap.set('.disc .settle-in',{y:24});
@@ -1342,6 +1372,14 @@
     n.connect(bp); bp.connect(g); g.connect(AU.master); n.start(now); n.stop(now+1);
     const o=C.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(90,now); o.frequency.exponentialRampToValueAtTime(180,now+.5);
     const og=C.createGain(); og.gain.setValueAtTime(.0001,now); og.gain.exponentialRampToValueAtTime(.09,now+.15); og.gain.exponentialRampToValueAtTime(.0001,now+.8); o.connect(og); og.connect(AU.master); o.start(now); o.stop(now+.85);
+  }
+  // supernova: estouro grave + sopro de ruído
+  function boom(){
+    if(!AU.ctx||!AU.on) return; const C=AU.ctx, now=C.currentTime;
+    const o=C.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(140,now); o.frequency.exponentialRampToValueAtTime(38,now+.7);
+    const og=C.createGain(); og.gain.setValueAtTime(.0001,now); og.gain.exponentialRampToValueAtTime(.35,now+.02); og.gain.exponentialRampToValueAtTime(.0001,now+.8); o.connect(og); og.connect(AU.master); o.start(now); o.stop(now+.85);
+    const n=C.createBufferSource(); n.buffer=AU.noise; const lp=C.createBiquadFilter(); lp.type='lowpass'; lp.frequency.setValueAtTime(3200,now); lp.frequency.exponentialRampToValueAtTime(260,now+.9);
+    const ng=C.createGain(); ng.gain.setValueAtTime(.0001,now); ng.gain.exponentialRampToValueAtTime(.28,now+.03); ng.gain.exponentialRampToValueAtTime(.0001,now+1); n.connect(lp); lp.connect(ng); ng.connect(AU.master); n.start(now); n.stop(now+1.05);
   }
   // UI click
   function uiClick(){
