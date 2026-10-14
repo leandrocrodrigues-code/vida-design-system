@@ -320,6 +320,7 @@
     .eyebrow{font-size:14px}
     #s1 .fg{padding:0 20px 0}
     #s1 .sub{font-size:clamp(15px,4vw,17px);line-height:1.35;max-width:34ch;margin-top:2.4vh}
+    @media (min-width:600px){ #s1 h2 .ln{display:block} } /* tablet: mantém as quebras de linha do Figma */
     .disc{padding:0 18px}
     .disc h2{font-size:clamp(26px,7vw,44px);margin-bottom:2vh}
     .disc p{font-size:clamp(16px,4.2vw,20px);max-width:36ch;margin-bottom:2.6vh}
@@ -347,7 +348,7 @@
     #s5 .caption{display:none}
     #s5 .right{left:0;right:0;top:auto;bottom:0;height:50%;padding-top:0;display:flex;flex-direction:column;justify-content:flex-end;background:var(--paper)}
     .compart{width:auto;right:0;bottom:50%}
-    .grid{grid-template-columns:repeat(6,1fr);border-bottom:0;padding:0 20px calc(3vh + env(safe-area-inset-bottom,0px));order:2}
+    .grid{width:min(100%,66vh);margin:0 auto;grid-template-columns:repeat(6,1fr);border-bottom:0;padding:0 20px calc(3vh + env(safe-area-inset-bottom,0px));order:2}
     .compinfo{order:1;position:static;padding:4vh 20px 3vh;text-align:center;color:var(--ink);flex:1;display:flex;flex-direction:column;justify-content:center}
     .compinfo .chip{font-size:12px;align-self:center}
     .compinfo h3{font-size:clamp(24px,7vw,34px);margin:8px 0 1.2vh}
@@ -356,6 +357,7 @@
     #s6 .vline{display:none}
     #s6 .fg{padding:22vh 20px 0}
     #s6 p{font-size:clamp(18px,4.8vw,26px);max-width:none;text-indent:2em;line-height:1.35}
+    @media (max-width:600px){ #s6 p{text-align:left} } /* justificado abre buracos em telas estreitas */
     /* S7: big two-line title, cards stacked and centred */
     #s7 .title{top:20%;font-size:clamp(34px,10vw,64px);line-height:1.02;padding:0 20px}
     #s7 .title .l1{display:block}
@@ -454,8 +456,7 @@
       <div class="stage">
         <span class="eyebrow rise">O que é VDS</span>
         <h2 class="rise"><span class="ln">VIDA Design System</span> <span class="ln">é a base que conecta</span> <span class="ln">design e inovação em</span> <span class="ln">tudo o que criamos.</span></h2>
-        <!-- TEXTO PROVISÓRIO (lorem ipsum igual ao Figma): trocar pelo texto final -->
-        <p class="sub rise">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers.</p>
+        <p class="sub rise">Um conjunto vivo de tokens, componentes e diretrizes que dá às equipes de produto uma base comum para criar interfaces consistentes, acessíveis e prontas para escalar.</p>
       </div>
     </div>
   </section>
