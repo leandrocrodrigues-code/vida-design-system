@@ -239,13 +239,8 @@
   .comp-btn::before{width:52%;height:1px;transform:translate(-50%,-50%)}
   .comp-btn::after{height:52%;width:1px;transform:translate(-50%,-50%)}
   .comp-btn.is-active::before,.comp-btn.is-active::after{opacity:1}
-  /* ativo: fundo no degradê azul bem suave e o "+" girando devagar */
+  /* ativo: fundo no degradê azul bem suave */
   .comp-btn.is-active{background:linear-gradient(135deg,rgba(0,219,255,.16),rgba(0,105,194,.2))}
-  .comp-btn.is-active::before,.comp-btn.is-active::after{animation:plusspin 12s linear infinite}
-  @keyframes plusspin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-  /* hover: miniatura do componente dentro do círculo */
-  .comp-btn .thumb{position:absolute;left:50%;top:50%;height:auto;transform:translate(-50%,-50%) scale(.85);opacity:0;pointer-events:none;transition:opacity .3s,transform .4s cubic-bezier(.2,.8,.2,1)}
-  .comp-btn:not(.is-active):hover .thumb,.comp-btn:not(.is-active):focus-visible .thumb{opacity:1;transform:translate(-50%,-50%) scale(1)}
   /* convite ao chegar na seção: um anel sai do círculo ativo e uma onda passa pelos outros */
   .comp-btn .ring{position:absolute;inset:-1px;border-radius:50%;border:1px solid var(--ink-2);opacity:0;pointer-events:none}
   .comp-btn.ping .ring{animation:cping 1.2s cubic-bezier(.2,.7,.3,1) both}
@@ -296,7 +291,7 @@
   #menu nav a:hover .big{transform:translateX(14px)}
 
   @media (prefers-reduced-motion:reduce){
-    #cue .mouse i,#cue .chev,.compart .float,.comp-btn.is-active::before,.comp-btn.is-active::after{animation:none}
+    #cue .mouse i,#cue .chev,.compart .float{animation:none}
   }
   /* =====================================================================
      MOBILE / TABLET (≤1024px) — everything below only applies under 1024px
@@ -1072,7 +1067,7 @@
     gsap.to([nm,ds],{opacity:0,y:8,duration:.25,ease:'power2.in',overwrite:true,onComplete:()=>{nm.textContent=c.name;ds.textContent=c.desc;gsap.to([nm,ds],{opacity:1,y:0,duration:.5,ease:'power2.out',stagger:.06});}});
   }
   // cada componente é um link: TROQUE O "#" PELO LINK REAL de cada um (o clique hoje só troca a forma)
-  COMPS.forEach((c,i)=>{const b=document.createElement('a');b.href='#';b.className='comp-btn'+(i?'':' is-active');b.setAttribute('role','tab');b.setAttribute('aria-selected',i?'false':'true');b.setAttribute('aria-label',c.name);b.title=c.name;b.innerHTML=`<span class="ring"></span><img class="thumb" alt="" src="${CDIR+c.f}.svg" style="width:${Math.round(c.w/700*80)}%">`;b.addEventListener('click',e=>{e.preventDefault();setShape(i);});compBtnsEl.appendChild(b);});
+  COMPS.forEach((c,i)=>{const b=document.createElement('a');b.href='#';b.className='comp-btn'+(i?'':' is-active');b.setAttribute('role','tab');b.setAttribute('aria-selected',i?'false':'true');b.setAttribute('aria-label',c.name);b.title=c.name;b.innerHTML='<span class="ring"></span>';b.addEventListener('click',e=>{e.preventDefault();setShape(i);});compBtnsEl.appendChild(b);});
   { const e=document.createElement('span'); e.className='comp-btn is-empty'; e.setAttribute('aria-hidden','true'); compBtnsEl.appendChild(e); } // 12º círculo da grade 4x3 (vazio, como no Figma)
   setShape(0,true);
 
