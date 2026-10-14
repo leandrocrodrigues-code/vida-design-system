@@ -1,4 +1,9 @@
+<!--
+  VIDA Design System — landing page
+  Desenvolvido por Leandro Candido Rodrigues
+-->
 <meta charset="utf-8">
+<meta name="author" content="Leandro Candido Rodrigues">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#002233">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -320,6 +325,7 @@
     .eyebrow{font-size:14px}
     #s1 .fg{padding:0 20px 0}
     #s1 .sub{font-size:clamp(15px,4vw,17px);line-height:1.35;max-width:34ch;margin-top:2.4vh}
+    @media (min-width:600px){ #s1 h2 .ln{display:block} } /* tablet: mantém as quebras de linha do Figma */
     .disc{padding:0 18px}
     .disc h2{font-size:clamp(26px,7vw,44px);margin-bottom:2vh}
     .disc p{font-size:clamp(16px,4.2vw,20px);max-width:36ch;margin-bottom:2.6vh}
@@ -347,7 +353,7 @@
     #s5 .caption{display:none}
     #s5 .right{left:0;right:0;top:auto;bottom:0;height:50%;padding-top:0;display:flex;flex-direction:column;justify-content:flex-end;background:var(--paper)}
     .compart{width:auto;right:0;bottom:50%}
-    .grid{grid-template-columns:repeat(6,1fr);border-bottom:0;padding:0 20px calc(3vh + env(safe-area-inset-bottom,0px));order:2}
+    .grid{width:min(100%,66vh);margin:0 auto;grid-template-columns:repeat(6,1fr);border-bottom:0;padding:0 20px calc(3vh + env(safe-area-inset-bottom,0px));order:2}
     .compinfo{order:1;position:static;padding:4vh 20px 3vh;text-align:center;color:var(--ink);flex:1;display:flex;flex-direction:column;justify-content:center}
     .compinfo .chip{font-size:12px;align-self:center}
     .compinfo h3{font-size:clamp(24px,7vw,34px);margin:8px 0 1.2vh}
@@ -356,6 +362,7 @@
     #s6 .vline{display:none}
     #s6 .fg{padding:22vh 20px 0}
     #s6 p{font-size:clamp(18px,4.8vw,26px);max-width:none;text-indent:2em;line-height:1.35}
+    @media (max-width:600px){ #s6 p{text-align:left} } /* justificado abre buracos em telas estreitas */
     /* S7: big two-line title, cards stacked and centred */
     #s7 .title{top:20%;font-size:clamp(34px,10vw,64px);line-height:1.02;padding:0 20px}
     #s7 .title .l1{display:block}
@@ -454,8 +461,7 @@
       <div class="stage">
         <span class="eyebrow rise">O que é VDS</span>
         <h2 class="rise"><span class="ln">VIDA Design System</span> <span class="ln">é a base que conecta</span> <span class="ln">design e inovação em</span> <span class="ln">tudo o que criamos.</span></h2>
-        <!-- TEXTO PROVISÓRIO (lorem ipsum igual ao Figma): trocar pelo texto final -->
-        <p class="sub rise">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers.</p>
+        <p class="sub rise">Tokens, componentes e diretrizes reunidos em um só lugar, para que todas as equipes de produto falem a mesma língua visual.</p>
       </div>
     </div>
   </section>
@@ -465,7 +471,7 @@
     <div class="fg">
       <div class="disc"><div class="inner">
         <h2 class="settle-in">Um único padrão visual, usado de ponta a ponta</h2>
-        <p class="settle-in">O VIDA une design e tecnologia num sistema vivo de componentes, testado em produção e pronto pra escalar.</p>
+        <p class="settle-in">Do Figma ao código, o VIDA mantém cores, tipografia e comportamentos alinhados em cada tela.</p>
         <a class="pill settle-in" href="https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao" data-complink>Explorar Componentes</a>
       </div></div>
     </div>
@@ -482,8 +488,8 @@
       <span class="rule r2" aria-hidden="true"></span>
       <span class="rule r3" aria-hidden="true"></span>
       <div class="card">
-        <h3>Um padrão visual único, testado em produção.</h3>
-        <p>Componentes reais, usados em Web e Winthor, que aceleram a entrega e mantêm a consistência entre squads.</p>
+        <h3>Testado em produção, pensado para evoluir.</h3>
+        <p>Componentes reais, usados no Web e no Winthor, que aceleram as entregas e mantêm as squads alinhadas.</p>
       </div>
     </div>
   </section>
@@ -501,7 +507,7 @@
     </svg>
     <div class="fg">
       <h2 class="rise">A presença do VIDA</h2>
-      <p class="lead rise">Números que mostram onde o VIDA já roda de verdade, do Web ao Winthor.</p>
+      <p class="lead rise">O alcance do VIDA hoje: o que já foi construído, o que está em evolução e onde ele está presente.</p>
       <div class="stats">
         <div class="stats-l">
           <div class="stat rise"><div class="lab">Componentes</div><div class="num">1213</div></div>
@@ -528,7 +534,7 @@
         <div class="compinfo">
           <span class="chip">Componente</span>
           <h3 id="compname">Disco</h3>
-          <p id="compdesc">Uma superfície única girando sobre si: o gradiente que percorre toda a paleta do sistema.</p>
+          <p id="compdesc">O ponto de partida: uma forma simples que concentra toda a paleta de cores do sistema.</p>
         </div>
       </div>
     </div>
@@ -540,7 +546,7 @@
     <div class="fg">
       <span class="vline" aria-hidden="true"></span>
       <span class="dring" aria-hidden="true"></span>
-      <p class="rise">O VIDA traduz decisões de design em padrões claros. Reúne componentes, princípios e comportamentos numa base única, usada em produção e pronta pra crescer junto com o produto.</p>
+      <p class="rise">Cada componente do VIDA carrega uma decisão de design já tomada: menos retrabalho e mais tempo para resolver o que realmente importa para quem usa nossos produtos.</p>
     </div>
   </section>
 
@@ -548,7 +554,7 @@
   <section class="sec" id="s7" aria-label="Recursos e suporte">
     <div class="bg"><div class="grad"></div><div class="grain"></div></div>
     <div class="fg">
-      <h2 class="title"><span class="l1">Vida</span> Design System</h2>
+      <h2 class="title"><span class="l1">VIDA</span> Design System</h2>
       <div class="halves">
         <a class="half" href="https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao" data-complink aria-label="Recursos">
           <div class="band">
@@ -560,7 +566,7 @@
         <a class="half" href="#" aria-label="Suporte">
           <div class="band">
             <h4>Suporte</h4>
-            <p>Canais abertos para tirar dúvidas, e solicitar novos componentes ao time.</p>
+            <p>Canais abertos para tirar dúvidas e solicitar novos componentes ao time.</p>
           </div>
           <svg class="arrow" viewBox="0 0 84 84" aria-hidden="true"><path d="M2 82L82 2M2 2h80v80"/></svg>
         </a>
@@ -572,7 +578,7 @@
 <div id="menu" aria-hidden="true">
   <canvas id="menugl" aria-hidden="true"></canvas><div class="grain"></div>
   <div class="top">
-    <span class="brand">Vida Design System</span>
+    <span class="brand">VIDA Design System</span>
   </div>
   <!-- TROQUE O "#" DE CADA ITEM PELO LINK REAL (hoje cada um leva à sua seção na página) -->
   <nav aria-label="Menu principal">
@@ -725,17 +731,17 @@
   /* ---- componentes da seção 5: SVGs (na ordem do Figma) com o degradê azul da marca; w = largura no frame de 1920 ---- */
   const CDIR='componentes/';
   const COMPS=[
-    {f:'01-disco',w:700,name:'Disco',desc:'Uma superfície única girando sobre si: o gradiente que percorre toda a paleta do sistema.'},
-    {f:'02-mosaico',w:680,name:'Mosaico',desc:'Peças que se encaixam: o componente central pulsa e os vizinhos respondem, como uma interface reagindo ao uso.'},
-    {f:'03-orbita',w:470,name:'Órbita',desc:'Dois anéis em torno do mesmo centro: produto e código girando juntos.'},
-    {f:'04-camadas',w:500,name:'Camadas',desc:'Planos empilhados que flutuam em conjunto: fundamentos, componentes e padrões, cada um no seu nível.'},
-    {f:'05-anel',w:700,name:'Anel',desc:'Um ciclo contínuo que se fecha: cada entrega alimenta a próxima evolução do sistema.'},
-    {f:'06-malha',w:620,name:'Malha',desc:'Uma grade viva: módulos independentes que respiram juntos e mantêm o ritmo da interface.'},
-    {f:'07-pilulas',w:470,name:'Pílulas',desc:'Fileiras que deslizam em contratempo: tags, chips e botões que se organizam sozinhos.'},
-    {f:'08-laminas',w:500,name:'Lâminas',desc:'Lâminas abrindo em leque: variações de um mesmo componente, alinhadas pelo mesmo eixo.'},
-    {f:'09-conteiner',w:480,name:'Contêiner',desc:'Superfícies aninhadas: o que envolve, organiza e dá contexto ao conteúdo.'},
-    {f:'10-pilha',w:480,name:'Pilha',desc:'Blocos empilhados do maior ao menor: hierarquia clara, do fundamento ao detalhe.'},
-    {f:'11-barras',w:470,name:'Barras',desc:'Crescimento medido: cada nova versão sobe um degrau em consistência e escala.'}
+    {f:'01-disco',w:700,name:'Disco',desc:'O ponto de partida: uma forma simples que concentra toda a paleta de cores do sistema.'},
+    {f:'02-mosaico',w:680,name:'Mosaico',desc:'Peças que se encaixam em torno de um centro: componentes que funcionam sozinhos e melhor ainda juntos.'},
+    {f:'03-orbita',w:470,name:'Órbita',desc:'Dois anéis com o mesmo centro: design e código caminhando lado a lado.'},
+    {f:'04-camadas',w:500,name:'Camadas',desc:'Fundamentos, componentes e padrões empilhados: cada camada se apoia na anterior.'},
+    {f:'05-anel',w:700,name:'Anel',desc:'Um ciclo que se fecha: cada entrega gera aprendizado para a próxima versão.'},
+    {f:'06-malha',w:620,name:'Malha',desc:'Módulos independentes que formam uma grade: a estrutura que dá ritmo às telas.'},
+    {f:'07-pilulas',w:470,name:'Pílulas',desc:'Tags, chips e botões: elementos pequenos que se organizam em qualquer espaço.'},
+    {f:'08-laminas',w:500,name:'Lâminas',desc:'Variações de um mesmo componente, alinhadas pelo mesmo eixo.'},
+    {f:'09-conteiner',w:480,name:'Contêiner',desc:'Superfícies aninhadas que envolvem, organizam e dão contexto ao conteúdo.'},
+    {f:'10-pilha',w:480,name:'Pilha',desc:'Blocos do maior ao menor: a hierarquia visual que guia o olhar pela tela.'},
+    {f:'11-barras',w:470,name:'Barras',desc:'Crescimento medido: a adoção do sistema aumenta a cada nova versão.'}
   ];
   COMPS.forEach(c=>{ const im=new Image(); im.src=CDIR+c.f+'.svg'; }); // pré-carrega para a troca ser instantânea
 
