@@ -203,6 +203,9 @@
     transform:rotate(-6deg);padding:3.2vh 3vh;
     display:flex;flex-direction:column;justify-content:space-between;
   }
+  /* manifesto: anéis que saem do card quando ele cai (gota batendo na água, como os anéis do início) */
+  #s3 .s3rings{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;clip-path:inset(var(--header-h) 0 0 0)} /* não cruza o header */
+  #s3 .s3rings circle{fill:none;stroke:var(--ink-3);stroke-width:1;opacity:0}
   .card h3{font-weight:300;font-size:clamp(18px,4vh,50px);line-height:1.1;margin:0;text-wrap:balance}
   .card p{font-size:clamp(11px,2vh,20px);color:var(--ink-2);margin:0;line-height:1.35}
 
@@ -487,6 +490,7 @@
       <span class="rule r1" aria-hidden="true"></span>
       <span class="rule r2" aria-hidden="true"></span>
       <span class="rule r3" aria-hidden="true"></span>
+      <svg class="s3rings" aria-hidden="true"><circle/><circle/><circle/></svg>
       <div class="card">
         <h3>Cada peça, testada em produção.</h3>
         <p>Componentes que já rodam no Web e no Winthor, acelerando as entregas e mantendo as squads alinhadas.</p>
@@ -1150,6 +1154,18 @@
   });
   gsap.to('#s4 .fg',{y:-30,ease:'none',scrollTrigger:{trigger:'#s4',start:'top bottom',end:'bottom top',scrub:true}});
 
+  // S3: ao cair, o card solta anéis que se espalham com fade (liga o manifesto aos anéis da seção "O que é VDS")
+  function s3Ripple(){
+    if(reduced) return;
+    const svg=document.querySelector('#s3 .s3rings'), card=document.querySelector('.card');
+    const sr=svg.getBoundingClientRect(), cr=card.getBoundingClientRect();
+    const cx=cr.left+cr.width/2-sr.left, cy=cr.top+cr.height/2-sr.top, r0=Math.hypot(cr.width,cr.height)*.42;
+    const rMax=Math.hypot(Math.max(cx,sr.width-cx),Math.max(cy,sr.height-cy));
+    svg.querySelectorAll('circle').forEach((c,i)=>{
+      c.setAttribute('cx',cx.toFixed(1)); c.setAttribute('cy',cy.toFixed(1));
+      gsap.fromTo(c,{attr:{r:r0},opacity:.9},{attr:{r:r0+(rMax-r0)*(.55+i*.22)},opacity:0,duration:1.8+i*.3,delay:i*.18,ease:'power2.out',overwrite:true});
+    });
+  }
   // S3 orchestrated sequence: words → card slap → rules
   {
     const tl=gsap.timeline({paused:true});
@@ -1157,7 +1173,7 @@
       .from('.w2',{y:60,opacity:0,duration:.6,ease:'power3.out'},'-=.25')
       .from('.w3',{y:60,opacity:0,duration:.6,ease:'power3.out'},'-=.25')
       .fromTo('.card',{y:-160,opacity:0,rotate:-15,scale:1.12},{y:0,opacity:1,rotate:-6,scale:1,duration:.65,ease:'power4.out',
-        onComplete:()=>gsap.fromTo('.card',{scale:.985},{scale:1,duration:.5,ease:'elastic.out(1,.45)'})},'+=.05')
+        onComplete:()=>{ gsap.fromTo('.card',{scale:.985},{scale:1,duration:.5,ease:'elastic.out(1,.45)'}); s3Ripple(); }},'+=.05')
       .from('.rule',{scaleX:0,duration:.7,ease:'power3.inOut',stagger:.12},'-=.1');
     ScrollTrigger.create({trigger:'#s3',start:'top 55%',onEnter:()=>tl.play(),onLeaveBack:()=>tl.reverse()});
   }
