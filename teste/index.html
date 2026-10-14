@@ -118,6 +118,9 @@
   #header.menu-on{z-index:60}
   #header.menu-on .left{opacity:0;pointer-events:none}
   #header.menu-on .right{color:#fff}
+  /* menu aberto: só a marca (no menu), o botão Componentes e o X */
+  #header.menu-on #logo{visibility:hidden}
+  #header.menu-on #theme,#header.menu-on #sound{display:none}
   #header.menu-on #burger::before{top:9.5px;transform:rotate(45deg)}
   #header.menu-on #burger::after{top:9.5px;transform:rotate(-45deg)}
 
@@ -289,7 +292,7 @@
   #menu canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
   #menu .top{position:absolute;left:40px;right:40px;top:0;height:var(--header-h);display:flex;align-items:center;z-index:2;pointer-events:none}
   #menu .brand{font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
-  #menu nav{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:stretch}
+  #menu nav{position:absolute;left:0;right:0;top:var(--header-h);bottom:0;display:flex;flex-direction:column;justify-content:stretch;border-top:1px solid rgba(255,255,255,.75)} /* começa abaixo do header: o X não fica sobre o 1º item */
   #menu nav a{flex:1;display:grid;grid-template-columns:27% 18% 1fr;align-items:center;border-bottom:1px solid rgba(255,255,255,.75);padding:0 var(--pad);transition:background .3s}
   #menu nav a:first-child{border-top:0}
   #menu nav a:last-child{border-bottom:0}
@@ -379,7 +382,6 @@
     /* menu */
     #menu .top{left:20px;right:20px}
     #menu .brand{font-size:15px}
-    #menu nav{top:var(--header-h);bottom:0}
     #menu nav a{grid-template-columns:1fr;padding:0 20px}
     #menu nav .lab{grid-column:1;font-size:13px} #menu nav .big{grid-column:1;font-size:clamp(26px,7.5vw,48px)}
   }
@@ -519,9 +521,9 @@
           <div class="stat rise"><div class="lab">Tokens de design</div><div class="num">486</div></div>
         </div>
         <div class="stats-r">
-          <!-- só números do próprio design system; "Tokens", "Ícones" e "Princípios" são VALORES PROVISÓRIOS (inventados): trocar pelos reais -->
+          <!-- só números do próprio design system; "Tokens", "Ícones" e "Diretrizes" são VALORES PROVISÓRIOS (inventados): trocar pelos reais -->
           <div class="stat rise"><div class="lab">Ícones</div><div class="num">320</div></div>
-          <div class="stat rise"><div class="lab">Princípios de design</div><div class="num">06</div></div>
+          <div class="stat rise"><div class="lab">Diretrizes</div><div class="num">214</div></div>
         </div>
       </div>
     </div>
