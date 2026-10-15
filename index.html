@@ -83,10 +83,6 @@
   #header.lt-left .left{color:#fff}
   #header.lt-right .right{color:#fff}
   #header .right{display:flex;align-items:center;gap:26px}
-  /* logo TOTVS centralizada no topo (SVG com currentColor: acompanha o tema e vira branca sobre fundos escuros) */
-  #logo{position:absolute;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0px);height:calc(var(--header-h) - env(safe-area-inset-top,0px));display:block;color:var(--ink);opacity:0;transition:color .4s ease}
-  #logo svg{display:block;height:100%;width:auto}
-  #header.lt-left #logo,#header.menu-on #logo{color:#fff}
   #complink{font-size:13px;font-weight:400;letter-spacing:.01em;white-space:nowrap;
     border:1px solid currentColor;border-radius:999px;padding:8px 18px;line-height:1;
     transition:background .3s,color .3s,border-color .3s}
@@ -119,7 +115,6 @@
   #header.menu-on .left{opacity:0;pointer-events:none}
   #header.menu-on .right{color:#fff}
   /* menu aberto: só a marca (no menu), o botão Componentes e o X */
-  #header.menu-on #logo{visibility:hidden}
   #header.menu-on #theme,#header.menu-on #sound{display:none}
   #header.menu-on #burger::before{top:9.5px;transform:rotate(45deg)}
   #header.menu-on #burger::after{top:9.5px;transform:rotate(-45deg)}
@@ -283,6 +278,8 @@
   .half p{font-size:clamp(12px,.98vw,16px);text-align:right;margin:0;max-width:30ch;justify-self:end;line-height:1.3}
   .half:hover{background:#fff;color:var(--navy)}
   .half .arrow{position:absolute;right:3.4vw;bottom:4vh;width:84px;height:84px}
+  .half-cta{position:absolute;left:3.4vw;bottom:4vh;border:1px solid currentColor;border-radius:999px;padding:12px 22px;font-size:14px;font-weight:400;line-height:1;transition:background .3s,color .3s,border-color .3s}
+  .half:hover .half-cta{background:var(--navy);border-color:var(--navy);color:#fff}
   .half .arrow path{fill:none;stroke:currentColor;stroke-width:1}
 
   /* ---------- menu ---------- */
@@ -317,14 +314,12 @@
     #stepnav{gap:22px} #stepnav button{font-size:17px} #stepnav svg{width:14px;height:14px}
     #header .right{gap:22px}
     #complink{display:none}
-    #logo:focus-visible{outline-offset:-4px}
     #theme{width:26px;height:26px} #theme svg{stroke-width:1.6}
     #sound{width:32px;height:28px} #sound svg{stroke-width:1.6}
     #burger{width:32px;height:24px} #burger::before,#burger::after{height:2px} #burger::before{top:7px} #burger::after{top:15px}
     #header.menu-on #burger::before,#header.menu-on #burger::after{top:11px}
     #cue{bottom:calc(22px + env(safe-area-inset-bottom,0px))}
     #cue .mouse{width:26px;height:42px}
-    @media (max-width:600px){ #logo{display:none} } /* sem espaço ao lado da marca/stepnav e dos ícones */
     /* hero: no captions on small screens, just the wordmark and the cue */
     #s0 .fg{display:none}
     /* S1 / S2: circle can be larger than the screen; text bigger */
@@ -379,6 +374,7 @@
     .half h4{font-size:clamp(28px,8vw,44px)}
     .half p{font-size:clamp(15px,4.2vw,18px);text-align:center;max-width:34ch;justify-self:center}
     .half .arrow{display:none}
+    .half-cta{position:static;margin-top:2.2vh;font-size:15px}
     /* menu */
     #menu .top{left:20px;right:20px}
     #menu .brand{font-size:15px}
@@ -400,19 +396,9 @@
       <button type="button" id="next"><svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg>Avançar</button>
     </nav>
   </div>
-  <a id="logo" href="https://www.totvs.com" target="_blank" rel="noopener" aria-label="TOTVS">
-    <svg viewBox="0 0 140 90" role="img" aria-hidden="true" focusable="false">
-      <path d="M32.5986 33.3895C32.3996 32.5905 31.9019 31.8914 31.1553 31.392C27.4227 28.5955 22.9932 26.4981 18.1657 25.1998C17.7177 25.0999 17.2201 25 16.7224 25C16.2247 25 15.727 25.0499 15.2791 25.1998C10.4515 26.4482 6.02204 28.5456 2.28937 31.392C1.59261 31.9413 1.09492 32.6405 0.846072 33.3895C0.298613 35.437 0 37.5343 0 39.5818V50.4182C0 52.5156 0.298613 54.563 0.846072 56.6105C1.04515 57.4095 1.54284 58.1086 2.28937 58.608C6.02204 61.4045 10.4515 63.5019 15.2791 64.8002C15.727 64.9001 16.2247 65 16.7224 65C17.2201 65 17.7177 64.9501 18.1657 64.8002C22.9932 63.5518 27.4227 61.4544 31.1553 58.608C31.8521 58.0587 32.3498 57.3596 32.5986 56.6105C33.1461 54.563 33.4447 52.4657 33.4447 50.4182V39.5818C33.4447 37.4844 33.1461 35.437 32.5986 33.3895ZM32.101 45.7241C31.9019 46.4232 31.454 47.0225 30.807 47.5218C28.9655 48.9201 26.9748 50.1186 24.7849 51.1174C22.6449 52.1161 20.3555 52.965 17.9666 53.5643C17.5684 53.6642 17.1205 53.7141 16.6726 53.7141C16.2247 53.7141 15.7768 53.6642 15.3786 53.5643C12.9897 52.965 10.7003 52.1161 8.56026 51.1174C6.42019 50.1186 4.37967 48.8702 2.53821 47.5218C1.89122 47.0225 1.4433 46.4232 1.24422 45.7241C1.09492 45.2747 1.09492 44.7753 1.24422 44.3258C1.4433 43.6267 1.89122 43.0275 2.53821 42.5281C4.37967 41.1298 6.37042 39.9313 8.56026 38.9326C10.7003 37.9338 12.9897 37.0849 15.3786 36.4856C15.7768 36.3858 16.2247 36.3358 16.6726 36.3358C17.1205 36.3358 17.5684 36.3858 17.9666 36.4856C20.3555 37.0849 22.6449 37.9338 24.7849 38.9326C26.925 39.9313 28.9655 41.1798 30.807 42.5281C31.454 43.0275 31.9019 43.6267 32.101 44.3258C32.2503 44.7753 32.2503 45.2747 32.101 45.7241Z" fill="currentColor"/>
-      <path d="M47.8777 39.2322H43.0004C42.204 39.2322 41.7561 38.7828 41.7561 37.9838V34.9875H58.8269V37.9838C58.8269 38.7828 58.379 39.2322 57.5826 39.2322H52.7053V55.0624H47.8777V39.2322Z" fill="currentColor"/>
-      <path d="M71.3189 50.7179C72.5133 50.2185 73.3594 49.6192 74.3548 48.8202C75.1013 48.221 75.4995 47.4719 75.5492 46.573C75.6985 45.3246 75.6985 44.7753 75.5492 43.5268C75.4497 42.6779 75.0515 41.8789 74.3548 41.2796C73.3594 40.4806 72.5133 39.8814 71.3189 39.3321C70.9705 39.1823 70.5226 39.0824 70.0249 39.0824C69.5272 39.0824 69.129 39.1823 68.7309 39.3321C67.5364 39.8315 66.6904 40.4307 65.695 41.2796C64.9484 41.829 64.5503 42.6779 64.5005 43.5268C64.3512 44.7753 64.3512 45.3246 64.5005 46.573C64.6001 47.4719 64.9484 48.221 65.695 48.8202C66.6904 49.6192 67.5364 50.2185 68.7309 50.7179C69.129 50.8677 69.5272 50.9176 70.0249 50.9176C70.5226 50.9176 70.9207 50.8677 71.3189 50.7179ZM66.8894 55.0125C65.4959 54.4632 63.8038 53.6142 62.6093 52.7154C60.8674 51.417 59.7725 49.4195 59.5236 47.2722C59.3743 45.7241 59.3743 44.3758 59.5236 42.8277C59.7725 40.6804 60.8674 38.6829 62.6093 37.3845C63.8038 36.4357 65.4461 35.5868 66.8894 35.0375C67.8848 34.638 68.93 34.3883 70.0249 34.3883C71.1198 34.3883 72.2147 34.6879 73.1603 35.0375C74.6036 35.5868 76.246 36.4357 77.4404 37.3845C79.1824 38.633 80.2773 40.6804 80.5261 42.8277C80.6754 44.3758 80.6754 45.7241 80.5261 47.2722C80.2773 49.4195 79.1824 51.417 77.4404 52.7154C76.246 53.6142 74.6036 54.4632 73.1603 55.0125C72.1649 55.412 71.1198 55.7116 70.0249 55.7116C68.93 55.7116 67.8848 55.412 66.8894 55.0125Z" fill="currentColor"/>
-      <path d="M87.3445 39.2322H82.4671C81.6708 39.2322 81.2229 38.7828 81.2229 37.9838V34.9875H98.2936V37.9838C98.2936 38.7828 97.8457 39.2322 97.0494 39.2322H92.1721V55.0624H87.3445V39.2322Z" fill="currentColor"/>
-      <path d="M107.65 54.3134L102.325 47.422C101.927 46.9226 101.827 46.5231 101.827 45.9238V34.9875H105.311C106.107 34.9875 106.555 35.437 106.555 36.236V44.975C106.555 45.5743 106.705 46.0237 107.053 46.5231L110.587 50.9176L113.971 46.5231C114.319 46.0237 114.469 45.5743 114.469 44.975V36.236C114.469 35.437 114.916 34.9875 115.713 34.9875H119.197V45.9238C119.197 46.5231 119.047 46.9725 118.699 47.4719L113.473 54.3134C113.075 54.8127 112.627 55.0624 111.98 55.0624H109.143C108.496 55.0624 108.048 54.8627 107.65 54.3134Z" fill="currentColor"/>
-      <path d="M122.332 48.5705H126.065C126.911 48.5705 127.06 48.8702 127.309 49.6692C127.657 50.8677 128.653 51.4669 130.743 51.4669H131.838C133.978 51.4669 135.073 50.8177 135.073 49.4694V49.02C135.073 48.221 134.376 47.6717 132.983 47.422L128.304 46.573C124.97 45.9738 122.68 44.3758 122.68 41.4295V40.2809C122.68 36.5855 125.965 34.4881 129.897 34.4881H132.137C136.865 34.4881 139.502 36.985 139.502 40.98H135.72C134.973 40.98 134.774 40.7803 134.625 40.181C134.326 39.0824 133.53 38.5331 131.888 38.5331H130.594C129.101 38.5331 127.608 38.9326 127.608 40.3308V40.7803C127.608 41.4794 128.255 42.0287 129.549 42.2285L134.476 43.1273C137.76 43.7266 140 45.2247 140 48.3208V49.5194C140 53.5144 136.466 55.5119 132.236 55.5119H130.196C125.567 55.5119 122.282 53.4145 122.282 48.5705" fill="currentColor"/>
-    </svg>
-  </a>
   <div class="right">
-    <!-- LINK DA PÁGINA DE COMPONENTES: troque o valor de COMPONENTS_URL lá embaixo no script (vale pros 3 links) -->
-    <a id="complink" href="https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao" data-complink>Componentes</a>
+    <!-- LINK DA BIBLIOTECA (Zero Height): definido em COMPONENTS_URL no script, vale para todos os CTAs de componentes -->
+    <a id="complink" href="https://zeroheight.com/422b6358a/p/29acd1-fundamentos" target="_blank" rel="noopener" data-complink>Acessar biblioteca</a>
     <button type="button" id="theme" aria-label="Ativar modo escuro" aria-pressed="false">
       <svg viewBox="0 0 22 22" aria-hidden="true">
         <g class="moon"><path d="M17.5 13.2A7 7 0 0 1 8.8 4.5a7 7 0 1 0 8.7 8.7z"/></g>
@@ -477,7 +463,7 @@
       <div class="disc"><div class="inner">
         <h2 class="settle-in">Um único núcleo, centenas de componentes</h2>
         <p class="settle-in">Do mesmo centro nasce cada peça: do Figma ao código, cores, tipografia e comportamentos alinhados em cada tela.</p>
-        <a class="pill settle-in" href="https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao" data-complink>Explorar Componentes</a>
+        <a class="pill settle-in" href="https://zeroheight.com/422b6358a/p/29acd1-fundamentos" target="_blank" rel="noopener" data-complink>Explorar Componentes</a>
       </div></div>
     </div>
   </section>
@@ -562,18 +548,20 @@
     <div class="fg">
       <h2 class="title"><span class="l1">VIDA</span> Design System</h2>
       <div class="halves">
-        <a class="half" href="https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao" data-complink aria-label="Recursos">
+        <a class="half" href="https://zeroheight.com/422b6358a/p/29acd1-fundamentos" target="_blank" rel="noopener" data-complink aria-label="Recursos">
           <div class="band">
             <h4>Recursos</h4>
             <p>Acesso rápido às bibliotecas, repositórios de código e ferramentas de desenvolvimento.</p>
           </div>
+          <span class="half-cta">Acessar biblioteca</span>
           <svg class="arrow" viewBox="0 0 84 84" aria-hidden="true"><path d="M2 82L82 2M2 2h80v80"/></svg>
         </a>
-        <a class="half" href="#" aria-label="Suporte">
+        <a class="half" href="https://zeroheight.com/422b6358a/p/29acd1-fundamentos" target="_blank" rel="noopener" data-collab aria-label="Colabore com o VIDA">
           <div class="band">
-            <h4>Suporte</h4>
-            <p>Canais abertos para tirar dúvidas e solicitar novos componentes ao time.</p>
+            <h4>Colabore</h4>
+            <p>O VIDA é construído junto: tire dúvidas, sugira melhorias e solicite novos componentes ao time.</p>
           </div>
+          <span class="half-cta">Quero colaborar</span>
           <svg class="arrow" viewBox="0 0 84 84" aria-hidden="true"><path d="M2 82L82 2M2 2h80v80"/></svg>
         </a>
       </div>
@@ -592,7 +580,7 @@
     <a href="#" data-goto="3"><span class="lab">Princípios</span><span class="big">Manifesto</span></a>
     <a href="#" data-goto="4"><span class="lab">Alcance</span><span class="big">Presença</span></a>
     <a href="#" data-goto="5"><span class="lab">Biblioteca</span><span class="big">Componentes</span></a>
-    <a href="#" data-goto="7"><span class="lab">Suporte</span><span class="big">Recursos</span></a>
+    <a href="#" data-goto="7"><span class="lab">Colabore</span><span class="big">Recursos</span></a>
   </nav>
 </div>
 
@@ -600,7 +588,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
-<script>if(!window.gsap){var l=document.getElementById('logo');if(l)l.style.opacity=1} /* sem GSAP (CDN fora do ar): mostra a logo sem animação */</script>
 <script>
 (function(){
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -1129,12 +1116,13 @@
   document.getElementById('prev').addEventListener('click',()=>goTo(idx-1));
   cue.addEventListener('click',()=>{ goTo(S.p>6.5?0:idx+1); });
   document.querySelectorAll('[data-goto]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();closeMenu();goTo(+a.dataset.goto);}));
-  document.querySelectorAll('.half:not([data-complink])').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
-  /* ===== LINK DA PÁGINA DE COMPONENTES (provisório) =====
-     Vale pro botão "Componentes" do header, pro "Explorar Componentes" e pro "Recursos" do rodapé.
-     Quando a página estiver pronta, troque só esta linha (ex.: 'componentes.html' ou a URL completa). */
-  const COMPONENTS_URL='https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducao';
-  document.querySelectorAll('[data-complink]').forEach(a=>{ a.href=COMPONENTS_URL; if(COMPONENTS_URL==='https://centrodeux.engenhariavd.totvs.io/422b6358a/p/521114-introducaos') a.addEventListener('click',e=>e.preventDefault()); });
+  /* ===== LINK DA BIBLIOTECA (Zero Height) =====
+     Vale para o "Acessar biblioteca" do header, o "Explorar Componentes" e o "Recursos" do rodapé. */
+  const COMPONENTS_URL='https://zeroheight.com/422b6358a/p/29acd1-fundamentos';
+  /* ===== LINK DE COLABORAÇÃO (bloco "Colabore" do rodapé) — PROVISÓRIO: troque pelo canal real (Teams, formulário, e-mail…) ===== */
+  const COLLAB_URL='https://zeroheight.com/422b6358a/p/29acd1-fundamentos';
+  document.querySelectorAll('[data-complink]').forEach(a=>{ a.href=COMPONENTS_URL; a.target='_blank'; a.rel='noopener'; });
+  document.querySelectorAll('[data-collab]').forEach(a=>{ a.href=COLLAB_URL; a.target='_blank'; a.rel='noopener'; });
 
   /* ===== tema light / dark ===== */
   const themeBtn=document.getElementById('theme'), themeMeta=document.querySelector('meta[name="theme-color"]');
@@ -1230,7 +1218,7 @@
   /* ================= sound (synthesized with Web Audio — no external files) =================
      ambient: soft futuristic pad + air; sphere: low "vuuum" that grows with cursor speed over it;
      balls: marble-on-wood clicks per impact; UI: short click on every button/link. */
-  const AU={ctx:null,on:true,master:null,whoosh:null,whooshF:null,hum:null,lastMarble:0,marbleBudget:0};
+  const AU={ctx:null,on:false,master:null,whoosh:null,whooshF:null,hum:null,lastMarble:0,marbleBudget:0};
   const soundBtn=document.getElementById('sound');
   function audioInit(){
     if(AU.ctx) return;
@@ -1317,7 +1305,7 @@
     const n=C.createBufferSource(); n.buffer=AU.noise; const hp=C.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=3000;
     const ng=C.createGain(); ng.gain.setValueAtTime(.08,now); ng.gain.exponentialRampToValueAtTime(.0001,now+.025); n.connect(hp); hp.connect(ng); ng.connect(AU.master); n.start(now); n.stop(now+.03);
   }
-  // try to start right away; if the browser blocks autoplay the icon shows muted and the first click/key anywhere (or the icon) starts it
+  // som começa DESLIGADO: o contexto de áudio é preparado, mas só toca quando a pessoa liga no ícone
   try{ audioInit(); AU.ctx.resume().then(syncIcon,syncIcon); }catch(e){}
   syncIcon();
   const firstGesture=()=>{ audioResume(); };
@@ -1332,13 +1320,12 @@
      then the sphere is born inside them. */
   gsap.set(['#brand','#burger','#cue','.hero-caption'],{opacity:0,y:16});
   if(reduced){
-    S.intro=1; S.rise=1; gsap.set(['#brand','#burger','#cue','.hero-caption'],{opacity:1,y:0}); gsap.set('#logo',{opacity:1});
+    S.intro=1; S.rise=1; gsap.set(['#brand','#burger','#cue','.hero-caption'],{opacity:1,y:0});
   }else{
     const intro=gsap.timeline({delay:.25});
     intro.to(S,{rise:1,duration:1.7,ease:'power2.inOut'},0)                                // green sunrise fills the letters
          .to(S,{intro:1,duration:1.35,ease:'back.out(1.25)'},1.15)                          // sphere is born inside
          .to(['#brand','#burger'],{opacity:1,y:0,duration:.7,ease:'power2.out',stagger:.06},2.2)
-         .to('#logo',{opacity:1,duration:.9,ease:'power2.out'},2.45)                        // logo TOTVS: fade depois que o hero já está montado (só opacity: o transform do CSS centraliza)
          .to('.hero-caption',{opacity:1,y:0,duration:.7,ease:'power2.out',stagger:.1},2.35)
          .to('#cue',{opacity:1,y:0,duration:.7,ease:'power2.out'},2.6);
   }
