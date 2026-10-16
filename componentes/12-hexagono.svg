@@ -1,0 +1,16 @@
+<svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<polygon points="110.00,2.00 203.53,56.00 161.96,80.00 110.00,50.00" fill="url(#g0)"/>
+<polygon points="203.53,56.00 203.53,164.00 161.96,140.00 161.96,80.00" fill="url(#g1)"/>
+<polygon points="203.53,164.00 110.00,218.00 110.00,170.00 161.96,140.00" fill="url(#g2)"/>
+<polygon points="110.00,218.00 16.47,164.00 58.04,140.00 110.00,170.00" fill="url(#g3)"/>
+<polygon points="16.47,164.00 16.47,56.00 58.04,80.00 58.04,140.00" fill="url(#g4)"/>
+<polygon points="16.47,56.00 110.00,2.00 110.00,50.00 58.04,80.00" fill="url(#g5)"/>
+<defs>
+<linearGradient id="g0" x1="156.77" y1="29.00" x2="135.98" y2="65.00" gradientUnits="userSpaceOnUse"><stop stop-color="#00DBFF"/><stop offset="1" stop-color="#0069C2"/></linearGradient>
+<linearGradient id="g1" x1="161.96" y1="110.00" x2="203.53" y2="110.00" gradientUnits="userSpaceOnUse"><stop stop-color="#00DBFF"/><stop offset="1" stop-color="#0069C2"/></linearGradient>
+<linearGradient id="g2" x1="156.77" y1="191.00" x2="135.98" y2="155.00" gradientUnits="userSpaceOnUse"><stop stop-color="#00DBFF"/><stop offset="1" stop-color="#0069C2"/></linearGradient>
+<linearGradient id="g3" x1="84.02" y1="155.00" x2="63.23" y2="191.00" gradientUnits="userSpaceOnUse"><stop stop-color="#00DBFF"/><stop offset="1" stop-color="#0069C2"/></linearGradient>
+<linearGradient id="g4" x1="16.47" y1="110.00" x2="58.04" y2="110.00" gradientUnits="userSpaceOnUse"><stop stop-color="#00DBFF"/><stop offset="1" stop-color="#0069C2"/></linearGradient>
+<linearGradient id="g5" x1="84.02" y1="65.00" x2="63.23" y2="29.00" gradientUnits="userSpaceOnUse"><stop stop-color="#00DBFF"/><stop offset="1" stop-color="#0069C2"/></linearGradient>
+</defs>
+</svg>
